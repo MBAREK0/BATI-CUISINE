@@ -6,12 +6,14 @@ public class Client {
     private String address;
     private String phone;
     private boolean is_professional;
+    private Double discount_percentage;
 
-    public Client(String name, String address, String phone, boolean is_professional) {
+    public Client(String name, String address, String phone, boolean is_professional,Double discount_percentage) {
         this.name = name;
         this.address = address;
         this.phone = phone;
         this.is_professional = is_professional;
+        this.discount_percentage = discount_percentage;
     }
 
     public int getClient_id() {
@@ -54,17 +56,33 @@ public class Client {
         this.is_professional = is_professional;
     }
 
+    public Double getDiscount_percentage() {
+        return discount_percentage;
+    }
+
+    public void setDiscount_percentage(Double discount_percentage) {
+        this.discount_percentage = discount_percentage;
+    }
+
     @Override
     public String toString() {
         // ANSI escape code for yellow text
         String yellow = "\033[0;33m";
         String reset = "\033[0m";
 
-        // Calculate the maximum widths for each column dynamically
-        int nameWidth = Math.max("Name".length(), name.length());
-        int addressWidth = Math.max("Address".length(), address.length());
-        int phoneWidth = Math.max("Phone".length(), phone.length());
-        int professionalWidth = Math.max("Professional".length(), is_professional ? "Yes".length() : "No".length());
+        // Instance variables
+        String name = this.name;
+        String address = this.address;
+        String phone = this.phone;
+        boolean is_professional = this.is_professional;
+        double discount_percentage = this.discount_percentage;
+
+        // Calculate maximum width needed for each column
+        int nameWidth = Math.max(8, name.length());
+        int addressWidth = Math.max(12, address.length());
+        int phoneWidth = Math.max(12, phone.length());
+        int professionalWidth = Math.max(14, (is_professional ? "Yes" : "No").length());
+        int discountWidth = Math.max(10, String.format("%.1f %%", discount_percentage).length());
 
         // Build the table
         StringBuilder sb = new StringBuilder();
@@ -75,26 +93,31 @@ public class Client {
                 .append("+").append("-".repeat(addressWidth + 2))
                 .append("+").append("-".repeat(phoneWidth + 2))
                 .append("+").append("-".repeat(professionalWidth + 2))
+                .append("+").append("-".repeat(discountWidth + 2))
                 .append("+\n");
 
         // Header row
-        sb.append(String.format("| %-"+nameWidth+"s | %-"+addressWidth+"s | %-"+phoneWidth+"s | %-"+professionalWidth+"s |\n", "Name", "Address", "Phone", "Professional"));
+        sb.append(String.format("| %-"+nameWidth+"s | %-"+addressWidth+"s | %-"+phoneWidth+"s | %-"+professionalWidth+"s | %-"+discountWidth+"s |\n",
+                "Name", "Address", "Phone", "Professional", "Discount"));
 
         // Middle border
         sb.append("+").append("-".repeat(nameWidth + 2))
                 .append("+").append("-".repeat(addressWidth + 2))
                 .append("+").append("-".repeat(phoneWidth + 2))
                 .append("+").append("-".repeat(professionalWidth + 2))
+                .append("+").append("-".repeat(discountWidth + 2))
                 .append("+\n");
 
-        // Data row
-        sb.append(String.format("| %-"+nameWidth+"s | %-"+addressWidth+"s | %-"+phoneWidth+"s | %-"+professionalWidth+"s |\n", name, address, phone, is_professional ? "Yes" : "No"));
+        // Data row with one space after the percentage sign
+        sb.append(String.format("| %-"+nameWidth+"s | %-"+addressWidth+"s | %-"+phoneWidth+"s | %-"+professionalWidth+"s | %"+(discountWidth -1)+".1f %%|\n",
+                name, address, phone, is_professional ? "Yes" : "No", discount_percentage));
 
         // Bottom border
         sb.append("+").append("-".repeat(nameWidth + 2))
                 .append("+").append("-".repeat(addressWidth + 2))
                 .append("+").append("-".repeat(phoneWidth + 2))
                 .append("+").append("-".repeat(professionalWidth + 2))
+                .append("+").append("-".repeat(discountWidth + 2))
                 .append("+\n");
 
         sb.append(reset); // Reset the color
@@ -104,4 +127,6 @@ public class Client {
 
 
 
+
 }
+

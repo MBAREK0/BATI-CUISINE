@@ -14,13 +14,15 @@ public class Remote {
     private QuoteRemote quoteRemote = new QuoteRemote();
 
     public void main() {
+
+        mainUi.logo();
         Boolean isRunning = true;
 
         while (isRunning) {
 
             mainUi.Ui();
 
-            System.out.print("\n\ni@baticuisine:~$ ");
+            mainUi.printPrompt("");
             int choice = scanner.nextInt();
             scanner.nextLine();
 
@@ -39,7 +41,7 @@ public class Remote {
                     isRunning = false;
                     break;
                 default:
-                    System.out.println("Invalid choice");
+                    System.err.println("\033[0;31mInvalid choice\033[0m");
                     break;
             }
 

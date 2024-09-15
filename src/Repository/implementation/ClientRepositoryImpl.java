@@ -76,12 +76,13 @@ public class ClientRepositoryImpl implements ClientRepository {
 
     @Override
     public void save(Client client) {
-        String query = "INSERT INTO Clients (name, address, phone, is_professional) VALUES (?, ?, ?, ?)";
+        String query = "INSERT INTO Clients (name, address, phone, is_professional,discount_percentage) VALUES (?, ?, ?, ?,?)";
         try (PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setString(1, client.getName());
             ps.setString(2, client.getAddress());
             ps.setString(3, client.getPhone());
             ps.setBoolean(4, client.isIs_professional());
+            ps.setDouble(5, client.getDiscount_percentage());
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -90,13 +91,14 @@ public class ClientRepositoryImpl implements ClientRepository {
 
     @Override
     public void update(Client client) {
-        String query = "UPDATE Clients SET name = ?, address = ?, phone = ?, is_professional = ? WHERE client_id = ?";
+        String query = "UPDATE Clients SET name = ?, address = ?, phone = ?, is_professional = ? , discount_percentage = ? WHERE client_id = ?";
         try (PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setString(1, client.getName());
             ps.setString(2, client.getAddress());
             ps.setString(3, client.getPhone());
             ps.setBoolean(4, client.isIs_professional());
-            ps.setInt(5, client.getClient_id());
+            ps.setDouble(5, client.getDiscount_percentage());
+            ps.setInt(6, client.getClient_id());
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -120,7 +122,8 @@ public class ClientRepositoryImpl implements ClientRepository {
         String address = rs.getString("address");
         String phone = rs.getString("phone");
         boolean isProfessional = rs.getBoolean("is_professional");
-        Client client = new Client(name, address, phone, isProfessional);
+        Double discount_percentage = rs.getDouble("discount_percentage");
+        Client client = new Client(name, address, phone, isProfessional, discount_percentage);
         client.setClient_id(id);
         return client;
     }

@@ -1,6 +1,7 @@
 package Remote;
 
 import ConsoleUi.ClientUi;
+import ConsoleUi.MainUi;
 import Entity.Client;
 import Entity.Project;
 import Repository.implementation.ClientRepositoryImpl;
@@ -15,6 +16,7 @@ public class ClientRemote {
 
     private final Scanner scanner = new Scanner(System.in);
     private final ClientUi clientUi = new ClientUi();
+    private final MainUi mainUi = new MainUi();
     private ClientRepositoryImpl clientRepository = new ClientRepositoryImpl();
 
     public void main() {
@@ -24,7 +26,7 @@ public class ClientRemote {
 
             clientUi.Ui();
 
-            System.out.print("\n\ni@baticuisine/client:~$ ");
+            mainUi.printPrompt("clients");
             int choice = scanner.nextInt();
             scanner.nextLine();
 
@@ -49,7 +51,7 @@ public class ClientRemote {
                     return;
 
                 default:
-                    System.out.println("Invalid choice");
+                    System.err.println("\033[0;31mInvalid choice\033[0m");
                     break;
 
 
@@ -80,7 +82,10 @@ public class ClientRemote {
                 System.err.println("\033[0;31mInvalid choice\033[0m");
                 return;
         }
-        Client client = new Client(name, address, phone, parseBoolean(isProfessional));
+        System.out.println("Enter the discount percentage");
+        Double discount = scanner.nextDouble();
+
+        Client client = new Client(name, address, phone, parseBoolean(isProfessional),discount);
         clientRepository.save(client);
         System.out.println("\033[0;32mClient created successfully\033[0m");
 
@@ -105,11 +110,11 @@ public class ClientRemote {
         }
         int id = client.getClient_id();
 
-        System.out.print("Enter client name: ");
+        System.out.print("Enter New client name: ");
         String name = scanner.nextLine();
-        System.out.print("Enter client address: ");
+        System.out.print("Enter New client address: ");
         String address = scanner.nextLine();
-        System.out.print("Enter client phone: ");
+        System.out.print("Enter New client phone: ");
         String phone = scanner.nextLine();
         System.out.print("Is client professional? (y/n): ");
         String isProfessional = scanner.nextLine();
@@ -126,10 +131,12 @@ public class ClientRemote {
 
                 return;
         }
-        Client c = new Client(name, address, phone, parseBoolean(isProfessional));
+        System.out.println("Enter the discount percentage");
+        Double discount = scanner.nextDouble();
+
+        Client c = new Client(name, address, phone, parseBoolean(isProfessional),discount);
         c.setClient_id(client.getClient_id());
         clientRepository.update(c);
-        System.out.println("+++>"+c);
 
         System.out.println("\033[0;32mClient updated successfully\033[0m");
     }
