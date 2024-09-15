@@ -65,4 +65,6 @@ public class Quote {
     public void setAccepted(boolean accepted) {
         this.accepted = accepted;
     }
+
+
 }

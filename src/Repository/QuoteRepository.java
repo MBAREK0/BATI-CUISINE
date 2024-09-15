@@ -1,4 +1,4 @@
-package repository;
+package Repository;
 
 import Entity.Quote;
 import java.util.List;

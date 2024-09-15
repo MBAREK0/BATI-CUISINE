@@ -1,8 +1,9 @@
-package repository.implementation;
+package Repository.implementation;
 
 
 import Entity.Client;
-import repository.ClientRepository;
+import Entity.Project;
+import Repository.ClientRepository;
 import Database.DatabaseConnection;
 
 import java.sql.*;
@@ -18,10 +19,10 @@ public class ClientRepositoryImpl implements ClientRepository {
 
     }
     @Override
-    public Optional<Client> findById(int id) {
-        String query = "SELECT * FROM Clients WHERE client_id = ?";
+    public Optional<Client> findByName(String name) {
+        String query = "SELECT * FROM Clients WHERE name = ?";
         try (PreparedStatement ps = connection.prepareStatement(query)) {
-            ps.setInt(1, id);
+            ps.setString(1, name);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 Client client = mapResultSetToClient(rs);
@@ -47,6 +48,30 @@ public class ClientRepositoryImpl implements ClientRepository {
             e.printStackTrace();
         }
         return clients;
+    }
+
+  public List<Project> findProjectsByClientId(int id) {
+        List<Project> projects = new ArrayList<>();
+        String query = "SELECT * FROM Projects WHERE client_id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                int project_id = rs.getInt("project_id");
+                String project_name = rs.getString("project_name");
+                double profit_margin = rs.getDouble("profit_margin");
+                double total_cost = rs.getDouble("total_cost");
+                String project_status = rs.getString("project_status");
+                double surface_area = rs.getDouble("surface_area");
+                int client_id = rs.getInt("client_id");
+                Project project = new Project(project_name, profit_margin, total_cost, project_status, surface_area, client_id);
+                project.setProject_id(project_id);
+                projects.add(project);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return projects;
     }
 
     @Override
@@ -89,12 +114,14 @@ public class ClientRepositoryImpl implements ClientRepository {
         }
     }
 
-    private Client mapResultSetToClient(ResultSet rs) throws SQLException {
+    protected Client mapResultSetToClient(ResultSet rs) throws SQLException {
         int id = rs.getInt("client_id");
         String name = rs.getString("name");
         String address = rs.getString("address");
         String phone = rs.getString("phone");
         boolean isProfessional = rs.getBoolean("is_professional");
-        return new Client(name, address, phone, isProfessional);
+        Client client = new Client(name, address, phone, isProfessional);
+        client.setClient_id(id);
+        return client;
     }
 }

@@ -22,14 +22,21 @@ public class DatabaseConnection {
                 connection = DriverManager.getConnection(URL, USER, PASSWORD);
             } catch (ClassNotFoundException e) {
                 System.err.println("PostgreSQL driver not found: " + e.getMessage());
-                // Log the error or handle it appropriately
                 throw new RuntimeException("PostgreSQL driver not found", e);
             } catch (SQLException e) {
                 System.err.println("Error establishing database connection: " + e.getMessage());
-                // Log the error or handle it appropriately
                 throw new RuntimeException("Error establishing database connection", e);
             }
         }
         return connection;
+    }
+    public static void closeConnection() {
+        try {
+            if (connection != null && !connection.isClosed()) {
+                connection.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

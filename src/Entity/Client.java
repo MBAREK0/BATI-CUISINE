@@ -56,7 +56,52 @@ public class Client {
 
     @Override
     public String toString() {
-        return "Client{" + "client_id=" + client_id + ", name=" + name + ", address=" + address + ", phone=" + phone + ", is_professional=" + is_professional + '}';
+        // ANSI escape code for yellow text
+        String yellow = "\033[0;33m";
+        String reset = "\033[0m";
+
+        // Calculate the maximum widths for each column dynamically
+        int nameWidth = Math.max("Name".length(), name.length());
+        int addressWidth = Math.max("Address".length(), address.length());
+        int phoneWidth = Math.max("Phone".length(), phone.length());
+        int professionalWidth = Math.max("Professional".length(), is_professional ? "Yes".length() : "No".length());
+
+        // Build the table
+        StringBuilder sb = new StringBuilder();
+        sb.append(yellow); // Start with yellow color
+
+        // Top border
+        sb.append("+").append("-".repeat(nameWidth + 2))
+                .append("+").append("-".repeat(addressWidth + 2))
+                .append("+").append("-".repeat(phoneWidth + 2))
+                .append("+").append("-".repeat(professionalWidth + 2))
+                .append("+\n");
+
+        // Header row
+        sb.append(String.format("| %-"+nameWidth+"s | %-"+addressWidth+"s | %-"+phoneWidth+"s | %-"+professionalWidth+"s |\n", "Name", "Address", "Phone", "Professional"));
+
+        // Middle border
+        sb.append("+").append("-".repeat(nameWidth + 2))
+                .append("+").append("-".repeat(addressWidth + 2))
+                .append("+").append("-".repeat(phoneWidth + 2))
+                .append("+").append("-".repeat(professionalWidth + 2))
+                .append("+\n");
+
+        // Data row
+        sb.append(String.format("| %-"+nameWidth+"s | %-"+addressWidth+"s | %-"+phoneWidth+"s | %-"+professionalWidth+"s |\n", name, address, phone, is_professional ? "Yes" : "No"));
+
+        // Bottom border
+        sb.append("+").append("-".repeat(nameWidth + 2))
+                .append("+").append("-".repeat(addressWidth + 2))
+                .append("+").append("-".repeat(phoneWidth + 2))
+                .append("+").append("-".repeat(professionalWidth + 2))
+                .append("+\n");
+
+        sb.append(reset); // Reset the color
+
+        return sb.toString();
     }
+
+
 
 }

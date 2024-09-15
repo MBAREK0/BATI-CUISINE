@@ -1,14 +1,16 @@
-package repository;
+package Repository;
 
 import Entity.Component;
+import Entity.Project;
+
 import java.util.List;
 import java.util.Optional;
 
 public interface ComponentRepository {
     Optional<Component> findById(int id);
-    List<Component> findByProjectId(int projectId);
+    Optional<Project> findProject(int id);
     List<Component> findAll();
-    void save(Component component);
+    Optional<Component> save(Component component);
     void update(Component component);
     void delete(int id);
 }

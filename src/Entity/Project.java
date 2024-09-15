@@ -82,16 +82,62 @@ public class Project {
 
     @Override
     public String toString() {
-        return "Project{" +
-                "project_id=" + project_id +
-                ", project_name='" + project_name + '\'' +
-                ", profit_margin=" + profit_margin +
-                ", total_cost=" + total_cost +
-                ", project_status='" + project_status + '\'' +
-                ", surface_area=" + surface_area +
-                ", client_id=" + client_id +
-                '}';
+        // ANSI escape code for yellow text
+        String yellow = "\033[0;33m";
+        String reset = "\033[0m";
+
+        // Calculate the maximum widths for each column dynamically
+        int projectNameWidth = Math.max("Project Name".length(), project_name.length());
+        int profitMarginWidth = Math.max("Profit Margin".length(), String.valueOf(profit_margin).length());
+        int totalCostWidth = Math.max("Total Cost".length(), String.valueOf(total_cost).length());
+        int projectStatusWidth = Math.max("Project Status".length(), project_status.length());
+        int surfaceAreaWidth = Math.max("Surface Area".length(), String.valueOf(surface_area).length());
+        int clientIdWidth = Math.max("Client ID".length(), String.valueOf(client_id).length());
+
+        // Build the table
+        StringBuilder sb = new StringBuilder();
+        sb.append(yellow); // Start with yellow color
+
+        // Top border
+        sb.append("+").append("-".repeat(projectNameWidth + 2))
+                .append("+").append("-".repeat(profitMarginWidth + 2))
+                .append("+").append("-".repeat(totalCostWidth + 2))
+                .append("+").append("-".repeat(projectStatusWidth + 2))
+                .append("+").append("-".repeat(surfaceAreaWidth + 2))
+                .append("+").append("-".repeat(clientIdWidth + 2))
+                .append("+\n");
+
+        // Header row
+        sb.append(String.format("| %-"+projectNameWidth+"s | %-"+profitMarginWidth+"s | %-"+totalCostWidth+"s | %-"+projectStatusWidth+"s | %-"+surfaceAreaWidth+"s | %-"+clientIdWidth+"s |\n",
+                "Project Name", "Profit Margin", "Total Cost", "Project Status", "Surface Area", "Client ID"));
+
+        // Middle border
+        sb.append("+").append("-".repeat(projectNameWidth + 2))
+                .append("+").append("-".repeat(profitMarginWidth + 2))
+                .append("+").append("-".repeat(totalCostWidth + 2))
+                .append("+").append("-".repeat(projectStatusWidth + 2))
+                .append("+").append("-".repeat(surfaceAreaWidth + 2))
+                .append("+").append("-".repeat(clientIdWidth + 2))
+                .append("+\n");
+
+        // Data row
+        sb.append(String.format("| %-"+projectNameWidth+"s | %-"+profitMarginWidth+"s | %-"+totalCostWidth+"s | %-"+projectStatusWidth+"s | %-"+surfaceAreaWidth+"s | %-"+clientIdWidth+"s |\n",
+                project_name, profit_margin, total_cost, project_status, surface_area, client_id));
+
+        // Bottom border
+        sb.append("+").append("-".repeat(projectNameWidth + 2))
+                .append("+").append("-".repeat(profitMarginWidth + 2))
+                .append("+").append("-".repeat(totalCostWidth + 2))
+                .append("+").append("-".repeat(projectStatusWidth + 2))
+                .append("+").append("-".repeat(surfaceAreaWidth + 2))
+                .append("+").append("-".repeat(clientIdWidth + 2))
+                .append("+\n");
+
+        sb.append(reset); // Reset the color
+
+        return sb.toString();
     }
+
 
 
 }

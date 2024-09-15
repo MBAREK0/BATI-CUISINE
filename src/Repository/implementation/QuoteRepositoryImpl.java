@@ -1,4 +1,4 @@
-package repository.implementation;
+package Repository.implementation;
 
 public class QuoteRepositoryImpl {
 
