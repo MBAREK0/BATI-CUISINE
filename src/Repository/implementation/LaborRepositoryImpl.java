@@ -10,6 +10,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class LaborRepositoryImpl {
@@ -35,6 +37,38 @@ public class LaborRepositoryImpl {
             }
         }
         return Optional.empty();
+    }
+
+    public List<Labor> findLaborsByProjectId(int id) {
+        String query = "SELECT \n" +
+                "    c.component_id, \n" +
+                "    c.project_id, \n" +
+                "    c.name, \n" +
+                "    c.unit_cost, \n" +
+                "    c.quantity, \n" +
+                "    c.component_type, \n" +
+                "    c.vat_rate,\n" +
+                "    l.hourly_rate, \n" +
+                "    l.hours_worked, \n" +
+                "    l.productivity_factor\n" +
+                "FROM \n" +
+                "    Components c\n" +
+                "INNER JOIN \n" +
+                "    Labor l ON c.component_id = l.component_id\n" +
+                "WHERE c.project_id = ?";
+
+        List<Labor> labors = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Labor labor = mapResultSetToComponent(rs);
+                labors.add(labor);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return labors;
     }
 
 

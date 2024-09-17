@@ -13,11 +13,29 @@ import java.util.Optional;
 
 public class ClientRepositoryImpl implements ClientRepository {
     private final Connection connection;
+    private final ProjectRepositoryImpl projectRepository = new ProjectRepositoryImpl();
 
     public ClientRepositoryImpl() {
         this.connection = DatabaseConnection.getConnection();
 
+
     }
+
+    public Optional<Client> findById(int id) {
+        String query = "SELECT * FROM Clients WHERE client_id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                Client client = mapResultSetToClient(rs);
+                return Optional.of(client);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return Optional.empty();
+    }
+
     @Override
     public Optional<Client> findByName(String name) {
         String query = "SELECT * FROM Clients WHERE name = ?";
@@ -51,28 +69,9 @@ public class ClientRepositoryImpl implements ClientRepository {
     }
 
   public List<Project> findProjectsByClientId(int id) {
-        List<Project> projects = new ArrayList<>();
-        String query = "SELECT * FROM Projects WHERE client_id = ?";
-        try (PreparedStatement ps = connection.prepareStatement(query)) {
-            ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                int project_id = rs.getInt("project_id");
-                String project_name = rs.getString("project_name");
-                double profit_margin = rs.getDouble("profit_margin");
-                double total_cost = rs.getDouble("total_cost");
-                String project_status = rs.getString("project_status");
-                double surface_area = rs.getDouble("surface_area");
-                int client_id = rs.getInt("client_id");
-                Project project = new Project(project_name, profit_margin, total_cost, project_status, surface_area, client_id);
-                project.setProject_id(project_id);
-                projects.add(project);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return projects;
+        return projectRepository.findProjectsByClientId(id);
     }
+
 
     @Override
     public void save(Client client) {

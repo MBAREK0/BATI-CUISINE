@@ -11,7 +11,7 @@ import java.util.Optional;
 public class ProjectRepositoryImpl implements ProjectRepository {
 
     private final Connection connection;
-    private ClientRepositoryImpl clientRepositoryImpl = new ClientRepositoryImpl();
+
     private QuoteRepositoryImpl quoteRepositoryImpl = new QuoteRepositoryImpl();
 
 
@@ -90,125 +90,51 @@ public class ProjectRepositoryImpl implements ProjectRepository {
         return projects;
     }
 
-        @Override
-        public Optional<Client> findClientByProjectId ( int id){
-            String query = "SELECT * FROM Clients WHERE client_id = (SELECT client_id FROM Projects WHERE project_id = ?)";
-            try (PreparedStatement ps = connection.prepareStatement(query)) {
-                ps.setInt(1, id);
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        Client client = clientRepositoryImpl.mapResultSetToClient(rs);
-                        return Optional.of(client);
-                    }
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
+    @Override
+    public Optional<Client> findClientByProjectId ( int id){
+       int client_id = 0;
+        String query = "SELECT client_id FROM Projects WHERE project_id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                client_id = rs.getInt("client_id");
             }
-            return Optional.empty();
-
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
+        return new ClientRepositoryImpl().findById(client_id);
+
+    }
 
         public List<Component> findComponentsByProjectId(int id) {
-            String query = "SELECT \n" +
-                    "    c.component_id, \n" +
-                    "    c.project_id, \n" +
-                    "    c.name, \n" +
-                    "    c.unit_cost, \n" +
-                    "    c.quantity, \n" +
-                    "    c.component_type, \n" +
-                    "    c.vat_rate,\n" +
-                    "    m.transport_cost, \n" +
-                    "    m.quality_coefficient, \n" +
-                    "    l.hourly_rate, \n" +
-                    "    l.hours_worked, \n" +
-                    "    l.productivity_factor\n" +
-                    "FROM \n" +
-                    "    Components c\n" +
-                    "LEFT JOIN \n" +
-                    "    Materials m ON c.component_id = m.component_id\n" +
-                    "LEFT JOIN \n" +
-                    "    Labor l ON c.component_id = l.component_id\n" +
-                    "WHERE c.project_id = ?";
-
-            List<Component> components = new ArrayList<>();
-            try (PreparedStatement ps = connection.prepareStatement(query)) {
-                ps.setInt(1, id);
-                ResultSet rs = ps.executeQuery();
-                while (rs.next()) {
-                    Component component = new ComponentRepositoryImpl().mapResultSetToComponent(rs);
-                    components.add(component);
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-            return components;
+           return new ComponentRepositoryImpl().findByProjectId(id);
         }
 
         @Override
         public  List<Material> findMaterialsByProjectId(int id) {
-            String query = "SELECT \n" +
-                    "    c.component_id, \n" +
-                    "    c.project_id, \n" +
-                    "    c.name, \n" +
-                    "    c.unit_cost, \n" +
-                    "    c.quantity, \n" +
-                    "    c.component_type, \n" +
-                    "    c.vat_rate,\n" +
-                    "    m.transport_cost, \n" +
-                    "    m.quality_coefficient\n" +
-                    "FROM \n" +
-                    "    Components c\n" +
-                    "INNER JOIN \n" +
-                    "    Materials m ON c.component_id = m.component_id\n" +
-                    "WHERE c.project_id = ?";
-
-            List<Material> materials = new ArrayList<>();
-            try (PreparedStatement ps = connection.prepareStatement(query)) {
-                ps.setInt(1, id);
-                ResultSet rs = ps.executeQuery();
-                while (rs.next()) {
-                    Material material = new MaterialRepositoryImpl().mapResultSetToMaterial(rs);
-                    materials.add(material);
-                }
-
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-            return materials;
+            return new MaterialRepositoryImpl().findByProjectId(id);
         }
 
         public List<Labor> findLaborsByProjectId(int id) {
-            String query = "SELECT \n" +
-                    "    c.component_id, \n" +
-                    "    c.project_id, \n" +
-                    "    c.name, \n" +
-                    "    c.unit_cost, \n" +
-                    "    c.quantity, \n" +
-                    "    c.component_type, \n" +
-                    "    c.vat_rate,\n" +
-                    "    l.hourly_rate, \n" +
-                    "    l.hours_worked, \n" +
-                    "    l.productivity_factor\n" +
-                    "FROM \n" +
-                    "    Components c\n" +
-                    "INNER JOIN \n" +
-                    "    Labor l ON c.component_id = l.component_id\n" +
-                    "WHERE c.project_id = ?";
+            return new LaborRepositoryImpl().findLaborsByProjectId(id);
+        }
 
-            List<Labor> labors = new ArrayList<>();
+        public List<Project> findProjectsByClientId(int id) {
+            List<Project> projects = new ArrayList<>();
+            String query = "SELECT * FROM Projects WHERE client_id = ?";
             try (PreparedStatement ps = connection.prepareStatement(query)) {
                 ps.setInt(1, id);
                 ResultSet rs = ps.executeQuery();
                 while (rs.next()) {
-                    Labor labor = new LaborRepositoryImpl().mapResultSetToComponent(rs);
-                    labors.add(labor);
+                    Project project = mapResultSetToProject(rs);
+                    projects.add(project);
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-            return labors;
+            return projects;
         }
-
         public Optional<Quote> findQuoteByProjectId(int id) {
            return quoteRepositoryImpl.findByProjectId(id);
         }

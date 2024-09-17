@@ -98,7 +98,7 @@ public class ProjectRemote {
             Double T =  projectService.calculateCost(project.getProject_id(), profitMargin);
             System.out.println();
             System.out.print("Total cost of the project: " );
-            System.out.println("\033[0;32m"+ T +"\033[0m");
+            System.out.println("\033[0;32m"+ String.format("%.2f", T) +"\033[0m");
             System.out.println();
 
 

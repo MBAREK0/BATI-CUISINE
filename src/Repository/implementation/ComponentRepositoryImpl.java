@@ -89,21 +89,41 @@ public class ComponentRepositoryImpl implements ComponentRepository {
         return components;
     }
 
-    public Optional<Project> findProject(int pid){
-        String query = "SELECT * FROM Projects WHERE project_id = ?";
+    public List<Component> findByProjectId(int id) {
+        String query = "SELECT \n" +
+                "    c.component_id, \n" +
+                "    c.project_id, \n" +
+                "    c.name, \n" +
+                "    c.unit_cost, \n" +
+                "    c.quantity, \n" +
+                "    c.component_type, \n" +
+                "    c.vat_rate,\n" +
+                "    m.transport_cost, \n" +
+                "    m.quality_coefficient, \n" +
+                "    l.hourly_rate, \n" +
+                "    l.hours_worked, \n" +
+                "    l.productivity_factor\n" +
+                "FROM \n" +
+                "    Components c\n" +
+                "LEFT JOIN \n" +
+                "    Materials m ON c.component_id = m.component_id\n" +
+                "LEFT JOIN \n" +
+                "    Labor l ON c.component_id = l.component_id\n" +
+                "WHERE c.project_id = ?";
+
+        List<Component> components = new ArrayList<>();
         try (PreparedStatement ps = connection.prepareStatement(query)) {
-            ps.setInt(1, pid);
+            ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                Project project = new ProjectRepositoryImpl().mapResultSetToProject(rs);
-                return Optional.of(project);
+            while (rs.next()) {
+                Component component = mapResultSetToComponent(rs);
+                components.add(component);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return Optional.empty();
+        return components;
     }
-
     @Override
     public Optional<Component> save(Component component) {
         // Define the query and prepare the statement with auto-generated keys
@@ -154,6 +174,7 @@ public class ComponentRepositoryImpl implements ComponentRepository {
         }
 
     }
+
 
     @Override
     public void delete(int id) {

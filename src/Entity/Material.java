@@ -45,7 +45,7 @@ public class Material extends Component {
 
     @Override
     public String toString() {
-        return getName() + ": " + calculateCost() + " Dh (Quantity: " + getQuantity() + ", unit cost: " + getUnit_cost() + ")";
+        return getName() + ": " + String.format("%.2f", calculateCost()) + " Dh (Quantity: " + getQuantity() + ", unit cost: " + getUnit_cost() + ")";
 
     }
 }

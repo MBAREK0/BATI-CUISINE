@@ -9,6 +9,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import Database.DatabaseConnection;
@@ -21,8 +23,6 @@ public class MaterialRepositoryImpl  {
     public MaterialRepositoryImpl() {
         this.connection = DatabaseConnection.getConnection();
     }
-
-
     public Optional<Material> findById(int id) {
         String query = "SELECT " +
                 "    c.component_id, " +
@@ -54,6 +54,37 @@ public class MaterialRepositoryImpl  {
         return Optional.empty();
     }
 
+    public List<Material> findByProjectId(int id) {
+        String query = "SELECT \n" +
+                "    c.component_id, \n" +
+                "    c.project_id, \n" +
+                "    c.name, \n" +
+                "    c.unit_cost, \n" +
+                "    c.quantity, \n" +
+                "    c.component_type, \n" +
+                "    c.vat_rate,\n" +
+                "    m.transport_cost, \n" +
+                "    m.quality_coefficient\n" +
+                "FROM \n" +
+                "    Components c\n" +
+                "INNER JOIN \n" +
+                "    Materials m ON c.component_id = m.component_id\n" +
+                "WHERE c.project_id = ?";
+
+        List<Material> materials = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Material material = mapResultSetToMaterial(rs);
+                materials.add(material);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return materials;
+    }
     public Optional<Material> save(Material material) {
       Optional<Component> component =  componentRepository.save(material);
         if(component.isPresent()){

@@ -8,7 +8,6 @@ import java.util.Optional;
 
 public interface ComponentRepository {
     Optional<Component> findById(int id);
-    Optional<Project> findProject(int id);
     List<Component> findAll();
     Optional<Component> save(Component component);
     void update(Component component);

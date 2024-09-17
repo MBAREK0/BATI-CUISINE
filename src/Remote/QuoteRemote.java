@@ -125,9 +125,10 @@ public class QuoteRemote {
             printTableHeader();
 
             // Print project information
-            System.out.println();
+            printTableRow("    ",BLACK_BG);
             printTableRow("Quote for project: " + project.getProject_name(),BLACK_BG);
-            System.out.println();
+            printTableRow("    ",BLACK_BG);
+
 
             printTableRow("Project information",BRIGHT_MAGENTA_BG);
             printTableRow("Client: " + client.getName(),WHITE_TEXT_ON_YELLOW_BG);
