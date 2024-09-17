@@ -3,9 +3,12 @@ package Service;
 import Entity.Labor;
 import Entity.Material;
 import Entity.Project;
+import Remote.LaborRemote;
+import Remote.MaterialRemote;
 import Repository.implementation.ProjectRepositoryImpl;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Scanner;
 
 public class ProjectService {
@@ -16,8 +19,6 @@ public class ProjectService {
     private Scanner scanner = new Scanner(System.in);
 
    public Double calculateCost(int pid, Double profitMargin){
-
-
 
        System.out.print("Would you like to apply VAT to the project? (y/n): ");
        String choice1 = scanner.nextLine();
@@ -36,7 +37,12 @@ public class ProjectService {
 
 
        double total_cost = 0;
-        Project project = projectRepository.findById(pid).get();
+        Optional<Project> OpProject = projectRepository.findById(pid);
+        if (!OpProject.isPresent()) {
+            System.err.println("\033[0;31mProject not found\033[0m");
+            return 0.0;
+        }
+        Project project = OpProject.get();
         // Calculate the total cost of the project base on the materials and labors
         System.out.println("\033[0;33mCalculating the total cost of the project...\033[0m");
 
@@ -52,7 +58,7 @@ public class ProjectService {
        } catch (InterruptedException e) {
            e.printStackTrace();
        }
-        System.out.println("\033[0;33mTotal cost of the project: \033[0m" + String.format("%.2f", total_cost));
+        System.out.println("\033[0;33mTotal cost of the project: \033[0m" + String.format("%.2f", total_cost) + " Dh");
 
 
         // Add the VAT rate to the total cost
@@ -64,7 +70,7 @@ public class ProjectService {
             e.printStackTrace();
         }
 
-        System.out.println("\033[0;33mTotal cost of the project after VAT: \033[0m" + String.format("%.2f", total_cost));
+        System.out.println("\033[0;33mTotal cost of the project after VAT: \033[0m" + String.format("%.2f", total_cost) + " Dh");
 
 
         // Add the profit margin to the total cost
@@ -75,7 +81,7 @@ public class ProjectService {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        System.out.println("\033[0;33mTotal cost of the project after profit margin: \033[0m" + String.format("%.2f", total_cost));
+        System.out.println("\033[0;33mTotal cost of the project after profit margin: \033[0m" + String.format("%.2f", total_cost) + " Dh");
 
 
         // Update the total cost of the project
@@ -86,5 +92,31 @@ public class ProjectService {
 
     }
 
+    public Boolean deleteMaterial(int pid, String materialName){
+        return projectRepository.deleteMaterial(pid, materialName);
+    }
+    public Boolean deleteLabor(int pid, String laborName){
+        return projectRepository.deleteLabor(pid, laborName);
+    }
+
+    public Optional<Material> updateMaterial(int pid, String materialName){
+       return new MaterialRemote().updateMaterial(pid, materialName);
+    }
+
+    public Optional<Labor> updateLabor(int pid, String laborName){
+        return new LaborRemote().updateLabor(pid, laborName);
+    }
+
+    public List<Material> viewMaterials(int pid){
+        return projectRepository.findMaterialsByProjectId(pid);
+    }
+
+    public List<Labor> viewLabors(int pid){
+        return projectRepository.findLaborsByProjectId(pid);
+    }
+
+    public  void updateProject(Project project){
+        projectRepository.update(project);
+    }
 
 }

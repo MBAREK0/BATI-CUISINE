@@ -14,9 +14,6 @@ public class ProjectRepositoryImpl implements ProjectRepository {
 
     private QuoteRepositoryImpl quoteRepositoryImpl = new QuoteRepositoryImpl();
 
-
-
-
     public ProjectRepositoryImpl() {
         this.connection = DatabaseConnection.getConnection();
     }
@@ -56,6 +53,30 @@ public class ProjectRepositoryImpl implements ProjectRepository {
         return Optional.empty();
     }
 
+    public Optional<Project> findByNameAndClient(String name, String clientName) {
+        Optional<Client> client = new ClientRepositoryImpl().findByName(clientName);
+        if (!client.isPresent()) {
+            return Optional.empty();
+        }
+        int client_id = client.get().getClient_id();
+
+        String query = "SELECT * FROM Projects WHERE project_name = ? AND client_id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setString(1, name);
+            ps.setInt(2, client_id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Project project = mapResultSetToProject(rs);
+                    return Optional.of(project);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return Optional.empty();
+
+    }
+
     @Override
     public List<Project> findAll() {
         List<Project> projects = new ArrayList<>();
@@ -72,12 +93,12 @@ public class ProjectRepositoryImpl implements ProjectRepository {
         return projects;
     }
     @Override
-    public List<Project> findByStatus (String status){
+    public List<Project> findByStatus(String status) {
         List<Project> projects = new ArrayList<>();
-        String query = "SELECT * FROM Projects WHERE project_status = ?";
+        String query = "SELECT * FROM Projects WHERE LOWER(project_status) = LOWER(?)";
 
         try (PreparedStatement ps = connection.prepareStatement(query)) {  // Use PreparedStatement
-            ps.setString(1, status);  // Set the status parameter
+            ps.setString(1, status);
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
@@ -89,6 +110,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
         }
         return projects;
     }
+
 
     @Override
     public Optional<Client> findClientByProjectId ( int id){
@@ -116,10 +138,11 @@ public class ProjectRepositoryImpl implements ProjectRepository {
             return new MaterialRepositoryImpl().findByProjectId(id);
         }
 
+        @Override
         public List<Labor> findLaborsByProjectId(int id) {
             return new LaborRepositoryImpl().findLaborsByProjectId(id);
         }
-
+        @Override
         public List<Project> findProjectsByClientId(int id) {
             List<Project> projects = new ArrayList<>();
             String query = "SELECT * FROM Projects WHERE client_id = ?";
@@ -135,10 +158,10 @@ public class ProjectRepositoryImpl implements ProjectRepository {
             }
             return projects;
         }
+        @Override
         public Optional<Quote> findQuoteByProjectId(int id) {
            return quoteRepositoryImpl.findByProjectId(id);
         }
-
         @Override
         public Optional<Project> save(Project project){
             String query = "INSERT INTO Projects (project_name, profit_margin, total_cost, project_status, surface_area, client_id) VALUES (?, ?, ?, ?, ?, ?)";
@@ -192,7 +215,15 @@ public class ProjectRepositoryImpl implements ProjectRepository {
             }
         }
 
-        protected Project mapResultSetToProject (ResultSet rs) throws SQLException {
+        public Boolean deleteMaterial(int pid, String materialName){
+            return new MaterialRepositoryImpl().deleteMaterial(pid, materialName);
+        }
+        public Boolean deleteLabor(int pid, String laborName){
+            return new LaborRepositoryImpl().deleteLabor(pid, laborName);
+        }
+
+        @Override
+        public Project mapResultSetToProject (ResultSet rs) throws SQLException {
             int project_id = rs.getInt("project_id");
             String project_name = rs.getString("project_name");
             double profit_margin = rs.getDouble("profit_margin");

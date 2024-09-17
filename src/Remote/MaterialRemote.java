@@ -92,8 +92,58 @@ public class MaterialRemote {
 
 
     }
-    public void updateMaterial() {
+    public Optional<Material> updateMaterial(int pid, String materialName){
+        Material material = materialRepository.findByProjectId(pid).stream().filter(m -> m.getName().equals(materialName)).findFirst().orElse(null);
 
+        if (material == null) {
+            System.err.println("\033[0;31mMaterial not found\033[0m");
+            return Optional.empty();
+        }
+
+        System.out.print("what do you want to update? (unit cost, quantity, vat rate, transport cost, quality coefficient): ");
+        String choice = scanner.nextLine();
+        while (!choice.equals("unit cost") && !choice.equals("quantity") && !choice.equals("vat rate") && !choice.equals("transport cost") && !choice.equals("quality coefficient")) {
+            System.err.println("\033[0;31mInvalid choice\033[0m");
+            System.out.print("what do you want to update? (unit cost, quantity, vat rate, transport cost, quality coefficient): ");
+            choice = scanner.nextLine();
+        }
+
+        switch (choice){
+            case "unit cost":
+                System.out.print("Enter the new unit cost: ");
+                double unitCost = scanner.nextDouble();
+                scanner.nextLine();
+                material.setUnit_cost(unitCost);
+                break;
+            case "quantity":
+                System.out.print("Enter the new quantity: ");
+                double quantity = scanner.nextDouble();
+                scanner.nextLine();
+                material.setQuantity(quantity);
+                break;
+            case "vat rate":
+                System.out.print("Enter the new vat rate: ");
+                double vatRate = scanner.nextDouble();
+                scanner.nextLine();
+                material.setVat_rate(vatRate);
+                break;
+            case "transport cost":
+                System.out.print("Enter the new transport cost: ");
+                double transportCost = scanner.nextDouble();
+                scanner.nextLine();
+                material.setTransport_cost(transportCost);
+                break;
+            case "quality coefficient":
+                System.out.print("Enter the new quality coefficient: ");
+                double qualityCoefficient = scanner.nextDouble();
+                scanner.nextLine();
+                material.setQuality_coefficient(qualityCoefficient);
+                break;
+            default:
+                return Optional.empty();
+        }
+
+        return materialRepository.updateMaterial(material);
     }
     public void deleteMaterial() {
 

@@ -87,7 +87,51 @@ public class LaborRemote {
         }
 
 
+    }
 
+    public Optional<Labor> updateLabor(int pid,String laborName) {
+        Labor labor = laborRepository.findLaborsByProjectId(pid).stream().filter(l -> l.getName().equals(laborName)).findFirst().orElse(null);
+
+        if (labor == null) {
+            System.err.println("\033[0;31mLabor not found\033[0m");
+            return Optional.empty();
+        }
+
+        System.out.print("what do you want to update? (type,hourly rate, hours worked, productivity factor): ");
+        String choice = scanner.nextLine();
+        while (!choice.equals("type") && !choice.equals("hourly rate") && !choice.equals("hours worked") && !choice.equals("productivity factor")) {
+            System.err.println("\033[0;31mInvalid choice\033[0m");
+            System.out.print("what do you want to update? (type,hourly rate, hours worked, productivity factor): ");
+            choice = scanner.nextLine();
+        }
+
+        switch (choice) {
+            case "type":
+                System.out.print("Enter the new type of labor: ");
+                String type = scanner.nextLine();
+                labor.setName(type);
+                break;
+            case "hourly rate":
+                System.out.print("Enter the new hourly rate of the labor: ");
+                double hourlyRate = scanner.nextDouble();
+                scanner.nextLine();
+                labor.setHourly_rate(hourlyRate);
+                break;
+            case "hours worked":
+                System.out.print("Enter the new hours worked by the worker: ");
+                double hoursWorked = scanner.nextDouble();
+                scanner.nextLine();
+                labor.setHours_worked(hoursWorked);
+                break;
+            case "productivity factor":
+                System.out.print("Enter the new productivity factor (1.0 = standard, > 1.0 = high productivity): ");
+                double productivityFactor = scanner.nextDouble();
+                scanner.nextLine();
+                labor.setProductivity_factor(productivityFactor);
+                break;
+        }
+
+        return laborRepository.updateLabor(labor);
 
 
 

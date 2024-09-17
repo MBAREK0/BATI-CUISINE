@@ -126,28 +126,47 @@ public class ComponentRepositoryImpl implements ComponentRepository {
     }
     @Override
     public Optional<Component> save(Component component) {
-        // Define the query and prepare the statement with auto-generated keys
+
         String query = "INSERT INTO Components (name, unit_cost, quantity, component_type, vat_rate, project_id) VALUES (?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement ps = connection.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS)) {
+        try {
 
-            // Set the parameters for the query
-            ps.setString(1, component.getName());
-            ps.setDouble(2, component.getUnit_cost());
-            ps.setDouble(3, component.getQuantity());
-            ps.setString(4, component.getComponent_type().toString());
-            ps.setDouble(5, component.getVat_rate());
-            ps.setInt(6, component.getProject_id());
+            connection.setAutoCommit(false);
 
-            // Execute the update
-            ps.executeUpdate();
+            try (PreparedStatement ps = connection.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS)) {
 
-            // Get the generated keys
-            try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
-                if (generatedKeys.next()) {
-                    int component_id = generatedKeys.getInt(1);
-                    component.setComponent_id(component_id);
-                    return Optional.of(component);
+                // Set the parameters for the query
+                ps.setString(1, component.getName());
+                ps.setDouble(2, component.getUnit_cost());
+                ps.setDouble(3, component.getQuantity());
+                ps.setString(4, component.getComponent_type().toString());
+                ps.setDouble(5, component.getVat_rate());
+                ps.setInt(6, component.getProject_id());
+
+                // Execute the update
+                int affectedRows = ps.executeUpdate();
+
+                if (affectedRows > 0) {
+                    // Get the generated keys
+                    try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
+                        if (generatedKeys.next()) {
+                            int component_id = generatedKeys.getInt(1);
+                            component.setComponent_id(component_id);
+
+                            connection.commit();
+
+                            return Optional.of(component);
+                        }
+                    }
+                } else {
+
+                    connection.rollback();
                 }
+
+            } catch (SQLException e) {
+                connection.rollback();
+                e.printStackTrace();
+            } finally {
+                connection.setAutoCommit(true);
             }
 
         } catch (SQLException e) {
@@ -156,39 +175,67 @@ public class ComponentRepositoryImpl implements ComponentRepository {
         return Optional.empty();
     }
 
-
     @Override
-    public void update(Component component) {
+    public Optional<Component> update(Component component) {
         String query = "UPDATE Components SET name = ?, unit_cost = ?, quantity = ?, component_type = ?, vat_rate = ?, project_id = ? WHERE component_id = ?";
-        try (PreparedStatement ps = connection.prepareStatement(query)) {
-            ps.setString(1, component.getName());
-            ps.setDouble(2, component.getUnit_cost());
-            ps.setDouble(3, component.getQuantity());
-            ps.setString(4, component.getComponent_type().toString());
-            ps.setDouble(5, component.getVat_rate());
-            ps.setInt(6, component.getProject_id());
-            ps.setInt(7, component.getComponent_id());
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
 
+        try {
+            connection.setAutoCommit(false);
+
+            try (PreparedStatement ps = connection.prepareStatement(query)) {
+                ps.setString(1, component.getName());
+                ps.setDouble(2, component.getUnit_cost());
+                ps.setDouble(3, component.getQuantity());
+                ps.setString(4, component.getComponent_type().toString());
+                ps.setDouble(5, component.getVat_rate());
+                ps.setInt(6, component.getProject_id());
+                ps.setInt(7, component.getComponent_id());
+
+                int affectedRows = ps.executeUpdate();
+                if (affectedRows > 0) {
+                    connection.commit();
+                    return Optional.of(component);
+                } else {
+                    connection.rollback();
+                }
+            }
+        } catch (SQLException e) {
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            e.printStackTrace();
+        } finally {
+            try {
+                connection.setAutoCommit(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return Optional.empty();
     }
+
 
 
     @Override
-    public void delete(int id) {
-        String query = "DELETE FROM Components WHERE component_id = ?";
+    public Boolean delete(int pid, String componentName, MaterialOrLabor materialOrLabor) {
+        String query = "DELETE FROM Components WHERE project_id = ? AND name = ? AND component_type = ?";
         try (PreparedStatement ps = connection.prepareStatement(query)) {
-            ps.setInt(1, id);
-            ps.executeUpdate();
+            ps.setInt(1, pid);
+            ps.setString(2, componentName);
+            ps.setString(3, materialOrLabor.toString());
+            int rows = ps.executeUpdate();
+            return rows > 0;
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return false;
     }
 
-    protected Component mapResultSetToComponent(ResultSet rs) throws SQLException {
-     int component_id = rs.getInt("component_id");
+
+    public Component mapResultSetToComponent(ResultSet rs) throws SQLException {
+        int component_id = rs.getInt("component_id");
         String name = rs.getString("name");
         double unit_cost = rs.getDouble("unit_cost");
         double quantity = rs.getDouble("quantity");

@@ -3,19 +3,19 @@ package Repository.implementation;
 import Database.DatabaseConnection;
 import Entity.Project;
 import Entity.Quote;
+import Repository.QuoteRepository;
 
 import java.sql.*;
 import java.util.Optional;
 
-public class QuoteRepositoryImpl {
+public class QuoteRepositoryImpl implements QuoteRepository {
 
     private Connection connection;
 
     public QuoteRepositoryImpl() {
         this.connection = DatabaseConnection.getConnection();
     }
-
-
+    @Override
     public Optional<Quote> save(Quote quote) {
         String query = "INSERT INTO Quotes (project_id, estimated_amount, issue_date, validity_date, accepted) VALUES (?, ?, ?, ?, ?) RETURNING quote_id";
 
@@ -45,7 +45,7 @@ public class QuoteRepositoryImpl {
         }
         return Optional.empty();
     }
-
+    @Override
     public Optional<Quote> findByProjectId(int project_id) {
         String query = "SELECT * FROM Quotes WHERE project_id = ?";
 
@@ -63,9 +63,7 @@ public class QuoteRepositoryImpl {
         }
         return Optional.empty();
     }
-
-
-
+    @Override
     public Quote mapResultSetToQuote(ResultSet rs) throws SQLException {
         int quoteId = rs.getInt("quote_id");
         int projectId = rs.getInt("project_id");

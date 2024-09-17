@@ -8,6 +8,7 @@ import Utils.DateChecker;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 import java.util.Scanner;
 
 public class QuoteRemote {
@@ -26,7 +27,7 @@ public class QuoteRemote {
     // Define table borders and separators
     private static final String BORDER = "+";
     private static final String SEPARATOR = "-";
-    private static final int TABLE_WIDTH = 80;
+    private static final int TABLE_WIDTH = 120;
     private static final String BRIGHT_MAGENTA_BG = "\033[105m";
     private static final String GREEN_BG = "\033[42m";
     private static final String BLACK_BG = "\033[40m";
@@ -43,7 +44,13 @@ public class QuoteRemote {
             pid = scanner.nextInt();
 
         }
-        Project project = projectRepository.findById(pid).get();
+
+        Optional<Project> OpProject = projectRepository.findById(pid);
+        if (!OpProject.isPresent()) {
+            System.err.println("\033[0;31mProject not found\033[0m");
+            return;
+        }
+        Project project = OpProject.get();
 
         if (project.getTotal_cost() == 0.0) {
             System.err.println("\033[1;33mThe project has no cost yet. Please add the materials and \n" +
@@ -106,69 +113,91 @@ public class QuoteRemote {
     }
 
     public void showQuote(int pid) {
-        Project project = projectRepository.findById(pid).get();
-        Client client = projectRepository.findClientByProjectId(pid).get();
-        Quote quote = projectRepository.findQuoteByProjectId(pid).get();
+        Optional<Project> OpProject = projectRepository.findById(pid);
+        if (!OpProject.isPresent()) {
+            System.err.println("\033[0;31mProject not found\033[0m");
+            return;
+        }
+        Project project =  OpProject.get();
+
+        Optional<Client> OpClient = projectRepository.findClientByProjectId(pid);
+        if (!OpClient.isPresent()) {
+            System.err.println("\033[0;31mClient not found\033[0m");
+            return;
+        }
+        Client client = OpClient.get();
+
+
+        Optional<Quote> OpQuote = projectRepository.findQuoteByProjectId(pid);
+        if (!OpQuote.isPresent()) {
+            System.err.println("\033[0;31mQuote not found\033[0m");
+            return;
+        }
+        Quote quote = OpQuote.get();
+
         List<Material> materials = projectRepository.findMaterialsByProjectId(pid);
         List<Labor> labors = projectRepository.findLaborsByProjectId(pid);
 
         printQuoteDetails(project, client, materials, labors, quote);
 
-
         return;
-
 
     }
 
-        public void printQuoteDetails(Project project, Client client, List<Material> materials, List<Labor> labors, Quote quote) {
-            // Print table header
-            printTableHeader();
+    public void printQuoteDetails(Project project, Client client, List<Material> materials, List<Labor> labors, Quote quote) {
+        // Print table header
+        printTableHeader();
 
-            // Print project information
-            printTableRow("    ",BLACK_BG);
-            printTableRow("Quote for project: " + project.getProject_name(),BLACK_BG);
-            printTableRow("    ",BLACK_BG);
+        // Print project information
+        printTableRow("    ",BLACK_BG);
+        printTableRow("  Quote for project: " + project.getProject_name(),BLACK_BG);
+        printTableRow("    ",BLACK_BG);
 
 
-            printTableRow("Project information",BRIGHT_MAGENTA_BG);
-            printTableRow("Client: " + client.getName(),WHITE_TEXT_ON_YELLOW_BG);
-            printTableRow("Surface area: " + project.getSurface_area() + " m^2",WHITE_TEXT_ON_YELLOW_BG);
-            printTableRow("Profit margin: " + project.getProfit_margin() + " %",WHITE_TEXT_ON_YELLOW_BG);
-            printTableRow("Project status: " + project.getProject_status(),WHITE_TEXT_ON_YELLOW_BG);
+        printTableRow("  Project information",BRIGHT_MAGENTA_BG);
+        printTableRow("  Client: " + client.getName(),WHITE_TEXT_ON_YELLOW_BG);
+        printTableRow("  Surface area: " + project.getSurface_area() + " m^2",WHITE_TEXT_ON_YELLOW_BG);
+        printTableRow("  Profit margin: " + project.getProfit_margin() + " %",WHITE_TEXT_ON_YELLOW_BG);
+        printTableRow("  Project status: " + project.getProject_status(),WHITE_TEXT_ON_YELLOW_BG);
 
-            // Print materials
-            printTableRow("Project materials",BRIGHT_MAGENTA_BG);
+        // Print materials
+
+        printTableRow("  Project materials",BRIGHT_MAGENTA_BG);
+        if (materials.isEmpty())
+            printTableRow("  No materials added to the project",WHITE_TEXT_ON_YELLOW_BG);
+        else
             materials.forEach(material -> printTableRow(material.toString(),WHITE_TEXT_ON_YELLOW_BG));
 
-            // Print labors
-            printTableRow("Project labors",BRIGHT_MAGENTA_BG);
-            labors.forEach(labor -> printTableRow(labor.toString(),WHITE_TEXT_ON_YELLOW_BG));
 
-            // Print quote information
-            printTableRow("Quote information",BRIGHT_MAGENTA_BG);
-            printTableRow("Issue date: " + quote.getIssueDate(),WHITE_TEXT_ON_YELLOW_BG);
-            printTableRow("Validity date: " + quote.getValidityDate(),WHITE_TEXT_ON_YELLOW_BG);
-            printTableRow("Accepted: " + quote.isAccepted(),WHITE_TEXT_ON_YELLOW_BG);
-            printTableRow("Estimated amount: " + quote.getEstimatedAmount() + " Dh",GREEN_BG);
+        // Print labors
+        printTableRow("  Project labors",BRIGHT_MAGENTA_BG);
+        if (labors.isEmpty())
+            printTableRow("  No labors added to the project",WHITE_TEXT_ON_YELLOW_BG);
+        else
+        labors.forEach(labor -> printTableRow(labor.toString(),WHITE_TEXT_ON_YELLOW_BG));
+
+        // Print quote information
+        printTableRow("  Quote information",BRIGHT_MAGENTA_BG);
+        printTableRow("  Issue date: " + quote.getIssueDate(),WHITE_TEXT_ON_YELLOW_BG);
+        printTableRow("  Validity date: " + quote.getValidityDate(),WHITE_TEXT_ON_YELLOW_BG);
+        printTableRow("  Accepted: " + quote.isAccepted(),WHITE_TEXT_ON_YELLOW_BG);
+        printTableRow("  Estimated amount: " +  String.format("%.2f", quote.getEstimatedAmount() ) + " Dh",GREEN_BG);
 
 
 
-            // Print table footer
-            printTableFooter();
-        }
-
-        private void printTableHeader() {
-            System.out.println(WHITE_TEXT_ON_YELLOW_BG + BORDER + SEPARATOR.repeat(TABLE_WIDTH - 2) + BORDER + RESET);
-        }
-
-        private void printTableFooter() {
-            System.out.println(WHITE_TEXT_ON_YELLOW_BG + BORDER + SEPARATOR.repeat(TABLE_WIDTH - 2) + BORDER + RESET);
-        }
-
-        private void printTableRow(String text,String COLOR) {
-            String formattedText = String.format("%-" + (TABLE_WIDTH - 4) + "s", text);
-            System.out.println(COLOR + BORDER + formattedText + BORDER + RESET);
-        }
+        // Print table footer
+        printTableFooter();
+    }
+    private void printTableHeader() {
+        System.out.println(WHITE_TEXT_ON_YELLOW_BG + BORDER + SEPARATOR.repeat(TABLE_WIDTH - 2) + BORDER + RESET);
+    }
+    private void printTableFooter() {
+        System.out.println(WHITE_TEXT_ON_YELLOW_BG + BORDER + SEPARATOR.repeat(TABLE_WIDTH - 2) + BORDER + RESET);
+    }
+    private void printTableRow(String text,String COLOR) {
+        String formattedText = String.format("%-" + (TABLE_WIDTH - 4) + "s", text);
+        System.out.println(COLOR + BORDER + formattedText + BORDER + RESET);
+    }
 
 
 

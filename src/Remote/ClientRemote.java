@@ -275,14 +275,116 @@ public class ClientRemote {
             return;
         }
 
-        List<Project>  project =   clientRepository.findProjectsByClientId(client.getClient_id());
-        if (project.isEmpty()) {
+        List<Project>  projects =   clientRepository.findProjectsByClientId(client.getClient_id());
+        if (projects.isEmpty()) {
             System.out.println("No projects found for client " + client.getName());
         } else {
             System.out.println("Projects for client " + client.getName() + ":");
-            project.forEach(System.out::println);
+
+            System.out.print(printTableHeader());
+            projects.forEach(project -> System.out.print(printProjectRow(project)));
+            System.out.print(printTableFooter());
 
         }
 
     }
+
+    // Method to print the table header horizontally
+    public String printTableHeader() {
+        // ANSI escape code for yellow text
+        String yellow = "\033[0;33m";
+        String reset = "\033[0m";
+
+        // Calculate the maximum widths for each column dynamically
+        int projectNameWidth = Math.max("Project Name".length(), 15)*2; // Arbitrary widths for headers
+        int profitMarginWidth = Math.max("Profit Margin".length(), 15);
+        int totalCostWidth = Math.max("Total Cost".length(), 15)*2;
+        int projectStatusWidth = Math.max("Project Status".length(), 15);
+        int surfaceAreaWidth = Math.max("Surface Area".length(), 15);
+
+        // Build the table header
+        StringBuilder sb = new StringBuilder();
+        sb.append(yellow); // Start with yellow color
+
+        // Top border
+        sb.append("+").append("-".repeat(projectNameWidth + 2))
+                .append("+").append("-".repeat(profitMarginWidth + 2))
+                .append("+").append("-".repeat(totalCostWidth + 2))
+                .append("+").append("-".repeat(projectStatusWidth + 2))
+                .append("+").append("-".repeat(surfaceAreaWidth + 2))
+                .append("+\n");
+
+        // Header row
+        sb.append(String.format("| %-"+projectNameWidth+"s | %-"+profitMarginWidth+"s | %-"+totalCostWidth+"s | %-"+projectStatusWidth+"s | %-"+surfaceAreaWidth+"s |\n",
+                "Project Name", "Profit Margin", "Total Cost", "Project Status", "Surface Area"));
+
+        // Middle border
+        sb.append("+").append("-".repeat(projectNameWidth + 2))
+                .append("+").append("-".repeat(profitMarginWidth + 2))
+                .append("+").append("-".repeat(totalCostWidth + 2))
+                .append("+").append("-".repeat(projectStatusWidth + 2))
+                .append("+").append("-".repeat(surfaceAreaWidth + 2))
+                .append("+\n");
+
+        sb.append(reset); // Reset the color
+        return sb.toString();
+    }
+
+    // Method to print a single project row horizontally
+    public String printProjectRow(Project project) {
+        // ANSI escape code for yellow text
+        String yellow = "\033[0;33m";
+        String reset = "\033[0m";
+
+        // Calculate the maximum widths for each column dynamically
+        int projectNameWidth = Math.max("Project Name".length(), 15)*2;
+        int profitMarginWidth = Math.max("Profit Margin".length(), 15);
+        int totalCostWidth = Math.max("Total Cost".length(), 15)*2;
+        int projectStatusWidth = Math.max("Project Status".length(), 15);
+        int surfaceAreaWidth = Math.max("Surface Area".length(), 15);
+
+        // Build the table row for the project
+        StringBuilder sb = new StringBuilder();
+        sb.append(yellow); // Start with yellow color
+
+        // Data row
+        sb.append(String.format("| %-"+projectNameWidth+"s | %-"+profitMarginWidth+"s | %-"+totalCostWidth+"s | %-"+projectStatusWidth+"s | %-"+surfaceAreaWidth+"s |\n",
+                project.getProject_name(),
+                project.getProfit_margin(),
+                project.getTotal_cost(),
+                project.getProject_status(),
+                project.getSurface_area()));
+
+        sb.append(reset);
+        return sb.toString();
+    }
+
+    // Method to print the bottom border
+    public String printTableFooter() {
+        // ANSI escape code for yellow text
+        String yellow = "\033[0;33m";
+        String reset = "\033[0m";
+
+        // Calculate the maximum widths for each column dynamically
+        int projectNameWidth = Math.max("Project Name".length(), 15)*2;
+        int profitMarginWidth = Math.max("Profit Margin".length(), 15);
+        int totalCostWidth = Math.max("Total Cost".length(), 15)*2;
+        int projectStatusWidth = Math.max("Project Status".length(), 15);
+        int surfaceAreaWidth = Math.max("Surface Area".length(), 15);
+
+        // Bottom border
+        StringBuilder sb = new StringBuilder();
+        sb.append(yellow); // Start with yellow color
+        sb.append("+").append("-".repeat(projectNameWidth + 2))
+                .append("+").append("-".repeat(profitMarginWidth + 2))
+                .append("+").append("-".repeat(totalCostWidth + 2))
+                .append("+").append("-".repeat(projectStatusWidth + 2))
+                .append("+").append("-".repeat(surfaceAreaWidth + 2))
+                .append("+\n");
+
+        sb.append(reset); // Reset the color
+        return sb.toString();
+    }
+
+
 }

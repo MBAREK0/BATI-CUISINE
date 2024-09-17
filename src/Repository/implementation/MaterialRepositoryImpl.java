@@ -14,8 +14,9 @@ import java.util.List;
 import java.util.Optional;
 
 import Database.DatabaseConnection;
+import Repository.MaterialRepository;
 
-public class MaterialRepositoryImpl  {
+public class MaterialRepositoryImpl implements MaterialRepository  {
 
     private final Connection connection;
     private ComponentRepositoryImpl componentRepository = new ComponentRepositoryImpl();
@@ -54,6 +55,7 @@ public class MaterialRepositoryImpl  {
         return Optional.empty();
     }
 
+    @Override
     public List<Material> findByProjectId(int id) {
         String query = "SELECT \n" +
                 "    c.component_id, \n" +
@@ -85,6 +87,7 @@ public class MaterialRepositoryImpl  {
         }
         return materials;
     }
+    @Override
     public Optional<Material> save(Material material) {
       Optional<Component> component =  componentRepository.save(material);
         if(component.isPresent()){
@@ -105,7 +108,27 @@ public class MaterialRepositoryImpl  {
         return Optional.empty();
     }
 
-    protected Material mapResultSetToMaterial(ResultSet rs) throws SQLException {
+    public Optional<Material> updateMaterial(Material material){
+        Optional<Component> component =  componentRepository.update(material);
+        if(component.isPresent()){
+            String query = "UPDATE Materials SET transport_cost = ?, quality_coefficient = ? WHERE component_id = ?";
+            try (PreparedStatement ps = connection.prepareStatement(query)) {
+                ps.setDouble(1, material.getTransport_cost());
+                ps.setDouble(2, material.getQuality_coefficient());
+                ps.setInt(3, material.getComponent_id());
+                ps.executeUpdate();
+                return Optional.of(material);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return Optional.empty();
+    }
+    public Boolean deleteMaterial(int pid, String materialName){
+        return componentRepository.delete(pid, materialName, MaterialOrLabor.MATERIAL);
+    }
+    @Override
+    public Material mapResultSetToMaterial(ResultSet rs) throws SQLException {
         int component_id = rs.getInt("component_id");
         String name = rs.getString("name");
         double unit_cost = rs.getDouble("unit_cost");
@@ -117,7 +140,9 @@ public class MaterialRepositoryImpl  {
         if(component_type == MaterialOrLabor.MATERIAL){
             double transport_cost = rs.getDouble("transport_cost");
             double quality_coefficient = rs.getDouble("quality_coefficient");
-            return new Material(name, unit_cost, quantity, vat_rate, project_id, transport_cost, quality_coefficient);
+            Material material = new Material(name, unit_cost, quantity, vat_rate, project_id, transport_cost, quality_coefficient);
+            material.setComponent_id(component_id);
+            return material;
         }else{
             // cant return a Material object if the component_type is LABOR
             return null;

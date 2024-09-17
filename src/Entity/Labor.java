@@ -42,7 +42,7 @@ public class Labor extends Component{
 
     @Override
     public String toString() {
-        return getName() + ": " +  String.format("%.2f", calculateCost()) + " Dh (Number of workers: " + getQuantity() + ", unit cost: " + getUnit_cost() + ")";
+        return "  " + getName() + ": " +  String.format("%.2f", calculateCost()) + " Dh (Number of workers: " + String.format("%.0f", getQuantity())  + ", unit cost: " +  String.format("%.2f", getUnit_cost()) + " Dh)";
     }
 
 
