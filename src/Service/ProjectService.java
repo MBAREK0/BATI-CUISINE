@@ -1,11 +1,10 @@
 package Service;
 
-import Entity.Labor;
-import Entity.Material;
-import Entity.Project;
+import Entity.*;
 import Remote.LaborRemote;
 import Remote.MaterialRemote;
 import Repository.implementation.ProjectRepositoryImpl;
+import Repository.implementation.QuoteRepositoryImpl;
 
 import java.util.List;
 import java.util.Optional;
@@ -92,6 +91,9 @@ public class ProjectService {
 
     }
 
+    public Optional<Project> findByNameAndClient(String projectName, String clientName){
+        return projectRepository.findByNameAndClient(projectName, clientName);
+    }
     public Boolean deleteMaterial(int pid, String materialName){
         return projectRepository.deleteMaterial(pid, materialName);
     }
@@ -107,16 +109,29 @@ public class ProjectService {
         return new LaborRemote().updateLabor(pid, laborName);
     }
 
-    public List<Material> viewMaterials(int pid){
+    public List<Material> findMaterials(int pid){
         return projectRepository.findMaterialsByProjectId(pid);
     }
 
-    public List<Labor> viewLabors(int pid){
+    public List<Labor> findLabors(int pid){
         return projectRepository.findLaborsByProjectId(pid);
     }
+    public Optional<Quote> findQuoteByProjectId(int id){
+        return projectRepository.findQuoteByProjectId(id);
+    }
+    public Optional<Client> findClientByProjectId(int id){
+        return projectRepository.findClientByProjectId(id);
+    }
 
+    public Optional<Project> findById(int pid){
+       return projectRepository.findById(pid);
+    }
     public  void updateProject(Project project){
         projectRepository.update(project);
+    }
+
+    public void updateQuote(Quote quote){
+        new QuoteRepositoryImpl().update(quote);
     }
 
 }

@@ -31,7 +31,7 @@ public class ComponentRemote {
 
         if (component.equals("m")) {
 
-            List<Material> materials = projectService.viewMaterials(project.getProject_id());
+            List<Material> materials = projectService.findMaterials(project.getProject_id());
             if(materials.isEmpty()){
                 System.out.println();
                 System.out.println("Materials:");
@@ -46,7 +46,7 @@ public class ComponentRemote {
             }
         }
         else if (component.equals("l")) {
-            List<Labor> labors =  projectService.viewLabors(project.getProject_id());
+            List<Labor> labors =  projectService.findLabors(project.getProject_id());
             if(labors.isEmpty()) {
                 System.out.println();
                 System.out.println("Labors:");
@@ -60,7 +60,7 @@ public class ComponentRemote {
             }
         }
         else {
-            List<Material> materials = projectService.viewMaterials(project.getProject_id());
+            List<Material> materials = projectService.findMaterials(project.getProject_id());
             if(materials.isEmpty()){
                 System.out.println();
                 System.out.println("Materials:");
@@ -74,12 +74,12 @@ public class ComponentRemote {
                 materials.forEach(System.out::println);
             }
 
-            List<Labor> labors =  projectService.viewLabors(project.getProject_id());
+            List<Labor> labors =  projectService.findLabors(project.getProject_id());
             if(labors.isEmpty()) {
                 System.out.println();
                 System.out.println("Labors:");
                 System.out.println("~~~~~~~~~~");
-                System.err.println("No labors found");
+                System.err.println("  No labors found");
             } else {
                 System.out.println();
                 System.out.println("Labors:");

@@ -16,6 +16,24 @@ public class QuoteRepositoryImpl implements QuoteRepository {
         this.connection = DatabaseConnection.getConnection();
     }
     @Override
+    public Optional<Quote> findByProjectId(int project_id) {
+        String query = "SELECT * FROM Quotes WHERE project_id = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, project_id);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(mapResultSetToQuote(rs));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Log or handle the exception as needed
+        }
+        return Optional.empty();
+    }
+    @Override
     public Optional<Quote> save(Quote quote) {
         String query = "INSERT INTO Quotes (project_id, estimated_amount, issue_date, validity_date, accepted) VALUES (?, ?, ?, ?, ?) RETURNING quote_id";
 
@@ -45,23 +63,34 @@ public class QuoteRepositoryImpl implements QuoteRepository {
         }
         return Optional.empty();
     }
-    @Override
-    public Optional<Quote> findByProjectId(int project_id) {
-        String query = "SELECT * FROM Quotes WHERE project_id = ?";
+
+    public void update(Quote quote) {
+        String query = "UPDATE Quotes SET project_id = ?, estimated_amount = ?, issue_date = ?, validity_date = ?, accepted = ? WHERE quote_id = ?";
 
         try (PreparedStatement ps = connection.prepareStatement(query)) {
-            ps.setInt(1, project_id);
+            // Set parameters
+            ps.setInt(1, quote.getProjectId());
+            ps.setDouble(2, quote.getEstimatedAmount());
+            ps.setDate(3, java.sql.Date.valueOf(quote.getIssueDate()));
+            ps.setDate(4, java.sql.Date.valueOf(quote.getValidityDate()));
+            ps.setBoolean(5, quote.isAccepted());
+            ps.setInt(6, quote.getQuoteId());
 
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return Optional.of(mapResultSetToQuote(rs));
-                }
-            }
+            ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
-            // Log or handle the exception as needed
         }
-        return Optional.empty();
+    }
+
+    public void delete(int quote_id) {
+        String query = "DELETE FROM Quotes WHERE quote_id = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, quote_id);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
     @Override
     public Quote mapResultSetToQuote(ResultSet rs) throws SQLException {

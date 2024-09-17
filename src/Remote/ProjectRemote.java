@@ -4,6 +4,7 @@ import ConsoleUi.MainUi;
 import ConsoleUi.ProjectUi;
 import Entity.Client;
 import Entity.Project;
+import Entity.Quote;
 import Repository.implementation.ClientRepositoryImpl;
 import Repository.implementation.ProjectRepositoryImpl;
 import Service.ProjectService;
@@ -184,9 +185,14 @@ public class ProjectRemote {
         project.setTotal_cost(T);
         projectService.updateProject(project);
 
-        // should update the quota for  this project  dofi
+        Optional<Quote> quote = projectService.findQuoteByProjectId(project.getProject_id());
+        if (quote.isPresent()) {
+            Quote q = quote.get();
+            q.setEstimatedAmount(T);
+            projectService.updateQuote(q);
+        }
 
-        // here ...
+        System.out.println("\033[0;32mProject updated successfully\033[0m");
 
     }
     public void updateProjectInfo(Project project){
