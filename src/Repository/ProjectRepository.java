@@ -18,4 +18,5 @@ public interface ProjectRepository {
     List<Component> findComponentsByProjectId(int id);
     List<Material> findMaterialsByProjectId(int id);
     List<Labor> findLaborsByProjectId(int id);
+    Optional<Quote> findQuoteByProjectId(int id);
 }

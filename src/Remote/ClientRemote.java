@@ -97,7 +97,7 @@ public class ClientRemote {
         }
         switch (choice) {
             case "y":
-                System.out.print("Enter the discount percentage");
+                System.out.print("Enter the discount percentage (%): ");
                  discount = scanner.nextDouble();
                 break;
             case "n":

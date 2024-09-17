@@ -1,5 +1,6 @@
 package Repository.implementation;
 
+import Entity.Component;
 import Entity.Material;
 import Entity.MaterialOrLabor;
 
@@ -15,6 +16,7 @@ import Database.DatabaseConnection;
 public class MaterialRepositoryImpl  {
 
     private final Connection connection;
+    private ComponentRepositoryImpl componentRepository = new ComponentRepositoryImpl();
 
     public MaterialRepositoryImpl() {
         this.connection = DatabaseConnection.getConnection();
@@ -48,6 +50,26 @@ public class MaterialRepositoryImpl  {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+        return Optional.empty();
+    }
+
+    public Optional<Material> save(Material material) {
+      Optional<Component> component =  componentRepository.save(material);
+        if(component.isPresent()){
+
+            String query = "INSERT INTO Materials (component_id, transport_cost, quality_coefficient) VALUES (?, ?, ?)";
+            try (PreparedStatement ps = connection.prepareStatement(query)) {
+                ps.setInt(1, component.get().getComponent_id());
+                ps.setDouble(2, material.getTransport_cost());
+                ps.setDouble(3, material.getQuality_coefficient());
+                ps.executeUpdate();
+                material.setComponent_id(component.get().getComponent_id());
+
+                return Optional.of(material);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
         return Optional.empty();
     }

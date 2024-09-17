@@ -11,7 +11,11 @@ import java.util.Optional;
 public class ProjectRepositoryImpl implements ProjectRepository {
 
     private final Connection connection;
-    private ClientRepositoryImpl clientRepositoryImpl;
+    private ClientRepositoryImpl clientRepositoryImpl = new ClientRepositoryImpl();
+    private QuoteRepositoryImpl quoteRepositoryImpl = new QuoteRepositoryImpl();
+
+
+
 
     public ProjectRepositoryImpl() {
         this.connection = DatabaseConnection.getConnection();
@@ -154,7 +158,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
                     "    m.quality_coefficient\n" +
                     "FROM \n" +
                     "    Components c\n" +
-                    "LEFT JOIN \n" +
+                    "INNER JOIN \n" +
                     "    Materials m ON c.component_id = m.component_id\n" +
                     "WHERE c.project_id = ?";
 
@@ -166,6 +170,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
                     Material material = new MaterialRepositoryImpl().mapResultSetToMaterial(rs);
                     materials.add(material);
                 }
+
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -186,7 +191,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
                     "    l.productivity_factor\n" +
                     "FROM \n" +
                     "    Components c\n" +
-                    "LEFT JOIN \n" +
+                    "INNER JOIN \n" +
                     "    Labor l ON c.component_id = l.component_id\n" +
                     "WHERE c.project_id = ?";
 
@@ -202,6 +207,10 @@ public class ProjectRepositoryImpl implements ProjectRepository {
                 e.printStackTrace();
             }
             return labors;
+        }
+
+        public Optional<Quote> findQuoteByProjectId(int id) {
+           return quoteRepositoryImpl.findByProjectId(id);
         }
 
         @Override

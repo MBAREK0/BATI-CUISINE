@@ -35,5 +35,17 @@ public class Labor extends Component{
     public void setProductivity_factor(double productivity_factor) {
         this.productivity_factor = productivity_factor;
     }
+
+    public Double calculateCost() {
+        return (hourly_rate * hours_worked) * productivity_factor * getQuantity() * (1 + (getVat_rate()/100)) ;
+    }
+
+    @Override
+    public String toString() {
+        return getName() + ": " + calculateCost() + " Dh (Number of workers: " + getQuantity() + ", unit cost: " + getUnit_cost() + ")";
+
+    }
+
+
 }
 

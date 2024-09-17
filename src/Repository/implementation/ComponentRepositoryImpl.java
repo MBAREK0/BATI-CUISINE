@@ -106,17 +106,22 @@ public class ComponentRepositoryImpl implements ComponentRepository {
 
     @Override
     public Optional<Component> save(Component component) {
+        // Define the query and prepare the statement with auto-generated keys
         String query = "INSERT INTO Components (name, unit_cost, quantity, component_type, vat_rate, project_id) VALUES (?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement ps = connection.prepareStatement(query)) {
+        try (PreparedStatement ps = connection.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS)) {
+
+            // Set the parameters for the query
             ps.setString(1, component.getName());
             ps.setDouble(2, component.getUnit_cost());
             ps.setDouble(3, component.getQuantity());
             ps.setString(4, component.getComponent_type().toString());
             ps.setDouble(5, component.getVat_rate());
             ps.setInt(6, component.getProject_id());
+
+            // Execute the update
             ps.executeUpdate();
 
-            // Get the generated project_id
+            // Get the generated keys
             try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
                     int component_id = generatedKeys.getInt(1);
@@ -130,6 +135,7 @@ public class ComponentRepositoryImpl implements ComponentRepository {
         }
         return Optional.empty();
     }
+
 
     @Override
     public void update(Component component) {
