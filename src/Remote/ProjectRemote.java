@@ -185,7 +185,7 @@ public class ProjectRemote {
         projectService.updateProject(project);
 
         // should update the quota for  this project  dofi
-        
+
         // here ...
 
     }
@@ -407,7 +407,7 @@ public class ProjectRemote {
 
         // Header row
         sb.append(String.format("| %-"+projectNameWidth+"s | %-"+profitMarginWidth+"s | %-"+totalCostWidth+"s | %-"+projectStatusWidth+"s | %-"+surfaceAreaWidth+"s | %-"+clientNameWidth+"s |\n",
-                "Project Name", "Profit Margin", "Total Cost", "Project Status", "Surface Area", "Client Name"));
+                "Project Name", "Profit Margin %", "Total Cost (Dh)", "Project Status", "Surface (m^2)", "Client Name"));
 
         // Middle border
         sb.append("+").append("-".repeat(projectNameWidth + 2))
