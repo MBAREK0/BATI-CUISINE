@@ -19,6 +19,30 @@ public class ClientRepositoryImpl implements ClientRepository {
         this.connection = DatabaseConnection.getConnection();
     }
 
+
+    @Override
+    public Optional<Client> save(Client client) {
+        String query = "INSERT INTO Clients (name, address, phone, is_professional,discount_percentage) VALUES (?, ?, ?, ?,?)";
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setString(1, client.getName());
+            ps.setString(2, client.getAddress());
+            ps.setString(3, client.getPhone());
+            ps.setBoolean(4, client.isIs_professional());
+            ps.setDouble(5, client.getDiscount_percentage());
+            ps.executeUpdate();
+            // Get the auto-generated id and set it on the client object
+            ResultSet rs = ps.getGeneratedKeys();
+            if (rs.next()) {
+                int id = rs.getInt(1);
+                client.setClient_id(id);
+            }
+            return Optional.of(client);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return Optional.empty();
+    }
+
     @Override
     public Optional<Client> findById(int id) {
         String query = "SELECT * FROM Clients WHERE client_id = ?";
@@ -50,6 +74,8 @@ public class ClientRepositoryImpl implements ClientRepository {
         }
         return Optional.empty();
     }
+
+    @Override
     public List<Client> findByProjectStatus(String status) {
         List<Client> clients = new ArrayList<>();
         String query = "SELECT * FROM Clients c JOIN Projects p ON c.client_id = p.client_id WHERE LOWER(p.project_status) = LOWER(?)";
@@ -67,7 +93,6 @@ public class ClientRepositoryImpl implements ClientRepository {
 
     }
 
-
     @Override
     public List<Client> findAll() {
         List<Client> clients = new ArrayList<>();
@@ -83,26 +108,14 @@ public class ClientRepositoryImpl implements ClientRepository {
         }
         return clients;
     }
+
     @Override
     public List<Project> findProjectsByClientId(int id) {
         return projectRepository.findProjectsByClientId(id);
     }
+
     @Override
-    public void save(Client client) {
-        String query = "INSERT INTO Clients (name, address, phone, is_professional,discount_percentage) VALUES (?, ?, ?, ?,?)";
-        try (PreparedStatement ps = connection.prepareStatement(query)) {
-            ps.setString(1, client.getName());
-            ps.setString(2, client.getAddress());
-            ps.setString(3, client.getPhone());
-            ps.setBoolean(4, client.isIs_professional());
-            ps.setDouble(5, client.getDiscount_percentage());
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-    @Override
-    public void update(Client client) {
+    public Optional<Client> update(Client client) {
         String query = "UPDATE Clients SET name = ?, address = ?, phone = ?, is_professional = ? , discount_percentage = ? WHERE client_id = ?";
         try (PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setString(1, client.getName());
@@ -112,10 +125,13 @@ public class ClientRepositoryImpl implements ClientRepository {
             ps.setDouble(5, client.getDiscount_percentage());
             ps.setInt(6, client.getClient_id());
             ps.executeUpdate();
+            return Optional.of(client);
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return Optional.empty();
     }
+
     @Override
     public void delete(int id) {
         String query = "DELETE FROM Clients WHERE client_id = ?";
@@ -126,6 +142,7 @@ public class ClientRepositoryImpl implements ClientRepository {
             e.printStackTrace();
         }
     }
+
     @Override
     public Client mapResultSetToClient(ResultSet rs) throws SQLException {
         int id = rs.getInt("client_id");

@@ -15,6 +15,7 @@ public class QuoteRepositoryImpl implements QuoteRepository {
     public QuoteRepositoryImpl() {
         this.connection = DatabaseConnection.getConnection();
     }
+
     @Override
     public Optional<Quote> findByProjectId(int project_id) {
         String query = "SELECT * FROM Quotes WHERE project_id = ?";
@@ -33,6 +34,7 @@ public class QuoteRepositoryImpl implements QuoteRepository {
         }
         return Optional.empty();
     }
+
     @Override
     public Optional<Quote> save(Quote quote) {
         String query = "INSERT INTO Quotes (project_id, estimated_amount, issue_date, validity_date, accepted) VALUES (?, ?, ?, ?, ?) RETURNING quote_id";
@@ -64,7 +66,7 @@ public class QuoteRepositoryImpl implements QuoteRepository {
         return Optional.empty();
     }
 
-    public void update(Quote quote) {
+    public Optional<Quote> update(Quote quote) {
         String query = "UPDATE Quotes SET project_id = ?, estimated_amount = ?, issue_date = ?, validity_date = ?, accepted = ? WHERE quote_id = ?";
 
         try (PreparedStatement ps = connection.prepareStatement(query)) {
@@ -77,9 +79,11 @@ public class QuoteRepositoryImpl implements QuoteRepository {
             ps.setInt(6, quote.getQuoteId());
 
             ps.executeUpdate();
+            return Optional.of(quote);
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return Optional.empty();
     }
 
     public void delete(int quote_id) {

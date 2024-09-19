@@ -3,6 +3,7 @@ package Service;
 import Entity.*;
 import Remote.LaborRemote;
 import Remote.MaterialRemote;
+import Repository.implementation.ClientRepositoryImpl;
 import Repository.implementation.ProjectRepositoryImpl;
 import Repository.implementation.QuoteRepositoryImpl;
 
@@ -15,25 +16,76 @@ public class ProjectService {
     private ProjectRepositoryImpl projectRepository = new ProjectRepositoryImpl();
     private MaterialService materialService = new MaterialService();
     private LaborService laborService = new LaborService();
-    private Scanner scanner = new Scanner(System.in);
-
-   public Double calculateCost(int pid, Double profitMargin){
-
-       System.out.print("Would you like to apply VAT to the project? (y/n): ");
-       String choice1 = scanner.nextLine();
-       while (!choice1.equals("y") && !choice1.equals("n")) {
-           System.err.println("\033[0;31mInvalid choice\033[0m");
-           System.out.print("Would you like to apply VAT to the project? (y/n): ");
-           choice1 = scanner.nextLine();
-       }
-       double vatRate = 0.0;
-       if (choice1.equals("y")) {
-           System.out.print("Enter the VAT percentage (%): ");
-           vatRate = scanner.nextDouble();
-           scanner.nextLine();
-       }
+    private ClientService clientService = new ClientService();
 
 
+
+    // ------------------- Project CRUD -------------------
+    public Optional<Project> save(Project project){ return projectRepository.save(project);}
+    public Optional<Project> findByNameAndClient(String projectName, String clientName){return projectRepository.findByNameAndClient(projectName, clientName);}
+    public Optional<Project> findById(int pid){
+        return projectRepository.findById(pid);
+    }
+    public List<Project> findByStatus(String status){
+        return projectRepository.findByStatus(status);
+    }
+    public  Optional<Project> update(Project project){
+        return projectRepository.update(project);
+    }
+
+
+    // ------------------- Project Clients -------------------
+    public Optional<Client> findClientByProjectId(int id){
+         if(findById(id).isPresent()){
+             return clientService.findById(findById(id).get().getClient_id());
+         }
+         return Optional.empty();
+    }
+    public Optional<Client> findClientByName(String name){
+        return clientService.findByName(name);
+    }
+    public List<Client> findClientByProjectStatus(String status){
+        return clientService.findByProjectStatus(status);
+    }
+
+    // ------------------- Project Materials  -------------------
+    public List<Material> findMaterials(int pid){
+        return materialService.findByProjectId(pid);
+    }
+    public Boolean deleteMaterial(int pid, String materialName){
+        return materialService.delete(pid, materialName);
+    }
+    public Optional<Material> updateMaterial(int pid, String materialName){
+        return new MaterialRemote().updateMaterial(pid, materialName);
+    }
+
+
+    // ------------------- Project Labors -------------------
+    public Optional<Labor> saveLabor(Labor labor){
+        return laborService.save(labor);
+    }
+    public List<Labor> findLabors(int pid){
+        return laborService.findLaborsByProjectId(pid);
+    }
+    public Optional<Labor> updateLabor(int pid, String laborName){
+        return new LaborRemote().updateLabor(pid, laborName);
+    }
+    public Boolean deleteLabor(int pid, String laborName){
+        return laborService.deleteLabor(pid, laborName);
+    }
+
+
+    // ------------------- Project Quotes -------------------
+    public Optional<Quote> findQuoteByProjectId(int id){
+        return projectRepository.findQuoteByProjectId(id);
+    }
+    public void updateQuote(Quote quote){
+        new QuoteRepositoryImpl().update(quote);
+    }
+
+
+    // ------------------- Project Cost Calculations -------------------
+    public Double calculateCost(int pid, Double profitMargin){
 
        double total_cost = 0;
         Optional<Project> OpProject = projectRepository.findById(pid);
@@ -52,24 +104,14 @@ public class ProjectService {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        try {
-           Thread.sleep(300);
-       } catch (InterruptedException e) {
-           e.printStackTrace();
-       }
+
         System.out.println("\033[0;33mTotal cost of the project: \033[0m" + String.format("%.2f", total_cost) + " Dh");
-
-
-        // Add the VAT rate to the total cost
-        total_cost = total_cost * (1 + (vatRate/100));
 
         try {
             Thread.sleep(600);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
-        System.out.println("\033[0;33mTotal cost of the project after VAT: \033[0m" + String.format("%.2f", total_cost) + " Dh");
 
 
         // Add the profit margin to the total cost
@@ -82,8 +124,16 @@ public class ProjectService {
         }
         System.out.println("\033[0;33mTotal cost of the project after profit margin: \033[0m" + String.format("%.2f", total_cost) + " Dh");
 
+        // add client discount for the project
 
-        // Update the total cost of the project
+       Client client = new ClientRepositoryImpl().findById(project.getClient_id()).get();
+
+        double effectiveDiscount = client.getDiscount_percentage() / 100;
+        total_cost = total_cost * (1 - effectiveDiscount);
+
+       System.out.println("\033[0;33mTotal cost of the project after applay discount : \033[0m" + String.format("%.2f", total_cost) + " Dh");
+
+       // Update the total cost of the project
         project.setTotal_cost(total_cost);
 
         projectRepository.update(project);
@@ -91,47 +141,5 @@ public class ProjectService {
 
     }
 
-    public Optional<Project> findByNameAndClient(String projectName, String clientName){
-        return projectRepository.findByNameAndClient(projectName, clientName);
-    }
-    public Boolean deleteMaterial(int pid, String materialName){
-        return projectRepository.deleteMaterial(pid, materialName);
-    }
-    public Boolean deleteLabor(int pid, String laborName){
-        return projectRepository.deleteLabor(pid, laborName);
-    }
-
-    public Optional<Material> updateMaterial(int pid, String materialName){
-       return new MaterialRemote().updateMaterial(pid, materialName);
-    }
-
-    public Optional<Labor> updateLabor(int pid, String laborName){
-        return new LaborRemote().updateLabor(pid, laborName);
-    }
-
-    public List<Material> findMaterials(int pid){
-        return projectRepository.findMaterialsByProjectId(pid);
-    }
-
-    public List<Labor> findLabors(int pid){
-        return projectRepository.findLaborsByProjectId(pid);
-    }
-    public Optional<Quote> findQuoteByProjectId(int id){
-        return projectRepository.findQuoteByProjectId(id);
-    }
-    public Optional<Client> findClientByProjectId(int id){
-        return projectRepository.findClientByProjectId(id);
-    }
-
-    public Optional<Project> findById(int pid){
-       return projectRepository.findById(pid);
-    }
-    public  void updateProject(Project project){
-        projectRepository.update(project);
-    }
-
-    public void updateQuote(Quote quote){
-        new QuoteRepositoryImpl().update(quote);
-    }
 
 }

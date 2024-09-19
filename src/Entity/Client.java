@@ -66,11 +66,10 @@ public class Client {
 
     @Override
     public String toString() {
-        // ANSI escape code for yellow text
+
         String yellow = "\033[0;33m";
         String reset = "\033[0m";
 
-        // Instance variables
         String name = this.name;
         String address = this.address;
         String phone = this.phone;
@@ -86,7 +85,7 @@ public class Client {
 
         // Build the table
         StringBuilder sb = new StringBuilder();
-        sb.append(yellow); // Start with yellow color
+        sb.append(yellow);
 
         // Top border
         sb.append("+").append("-".repeat(nameWidth + 2))

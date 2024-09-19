@@ -5,6 +5,7 @@ import ConsoleUi.QuoteUi;
 import Entity.*;
 import Repository.implementation.QuoteRepositoryImpl;
 import Service.ProjectService;
+import Service.QuoteService;
 import Utils.DateChecker;
 
 import java.time.LocalDate;
@@ -19,7 +20,7 @@ public class QuoteRemote {
     private ProjectService projectService = new ProjectService();
     private DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private QuoteRepositoryImpl quoteRepository = new QuoteRepositoryImpl();
-
+    private QuoteService quoteService = new QuoteService();
 
 
     // Define colors
@@ -51,7 +52,6 @@ public class QuoteRemote {
 
             switch (choice) {
                 case 1:
-
                     generateQuote();
                     break;
                 case 2:
@@ -100,11 +100,6 @@ public class QuoteRemote {
         showQuote(project.getProject_id());
     }
     public void createQuote(Integer pid) {
-        if (pid == null) {
-            System.out.print("Enter the project ID: ");
-            pid = scanner.nextInt();
-
-        }
 
         Optional<Project> OpProject = projectService.findById(pid);
         if (!OpProject.isPresent()) {
@@ -121,54 +116,42 @@ public class QuoteRemote {
 
         Double estimated_amount = project.getTotal_cost();
 
-        System.out.print("Enter the issue date (yyyy-mm-dd): ");
-        LocalDate issue_date = LocalDate.parse(scanner.nextLine(), dateFormatter);
+        LocalDate issue_date;
+        LocalDate validity_date;
+        Boolean check_date;
+       do {
+           System.out.print("Enter the issue date (yyyy-mm-dd): ");
+           issue_date = LocalDate.parse(scanner.nextLine(), dateFormatter);
 
-        System.out.print("Enter the validity date (yyyy-mm-dd): ");
-        LocalDate validity_date = LocalDate.parse(scanner.nextLine(), dateFormatter);
+           System.out.print("Enter the validity date (yyyy-mm-dd): ");
+           validity_date = LocalDate.parse(scanner.nextLine(), dateFormatter);
 
-        Boolean check_date = DateChecker.isValidPeriod(issue_date, validity_date);
+           check_date = DateChecker.isValidPeriod(issue_date, validity_date);
 
-        while (!check_date) {
-            System.err.println("\033[0;31mInvalid dates\033[0m");
-            System.out.print("Enter the issue date (yyyy-mm-dd): ");
-            issue_date = LocalDate.parse(scanner.nextLine(), dateFormatter);
+       } while (!check_date);
 
-            System.out.print("Enter the validity date (yyyy-mm-dd): ");
-            validity_date = LocalDate.parse(scanner.nextLine(), dateFormatter);
-
-            check_date = DateChecker.isValidPeriod(issue_date, validity_date);
-        }
-
-
-        System.out.print("Is the quote accepted? (y/n): ");
-        String accepted = scanner.nextLine();
-
-        while (!accepted.equals("y") && !accepted.equals("n")) {
-            System.err.println("\033[0;31mInvalid choice\033[0m");
+        String accepted;
+        do {
             System.out.print("Is the quote accepted? (y/n): ");
             accepted = scanner.nextLine();
-        }
+        } while (!accepted.equals("y") && !accepted.equals("n"));
 
-        System.out.print("Would you like to save the quote? (y/n): ");
-        String save = scanner.nextLine();
-
-        while (!save.equals("y") && !save.equals("n")) {
-            System.err.println("\033[0;31mInvalid choice\033[0m");
+        String save;
+        do {
             System.out.print("Would you like to save the quote? (y/n): ");
             save = scanner.nextLine();
-        }
+        } while (!save.equals("y") && !save.equals("n")) ;
 
-        if (save.equals("n")) {
-            return;
-        }
+        if (save.equals("n"))  return;
 
         Quote quote = new Quote(pid, estimated_amount, issue_date, validity_date, accepted.equals("y"));
 
-        Quote savedQuote = quoteRepository.save(quote).get();
-        System.out.println();
-        System.out.println("\033[0;32mQuote created successfully\033[0m");
-        System.out.println();
+        if (quoteService.save(quote).isPresent()){
+            System.out.println();
+            System.out.println("\033[0;32mQuote created successfully\033[0m");
+            System.out.println();
+        }else
+            System.err.println("\033[0;31mFailed to create the quote\033[0m");
 
         showQuote(pid);
     }

@@ -6,6 +6,7 @@ import Entity.Project;
 import Service.ProjectService;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Scanner;
 
 public class ComponentRemote {
@@ -16,14 +17,12 @@ public class ComponentRemote {
 
 
     public void viewComponent(Project project){
-        System.out.print("\033[0;94mWould you like to view materials or labors or both? (m/l/b) type 'q' to quit: \033[0m");
-        // b = both
-        String component = scanner.nextLine();
-        while (!component.equals("m") && !component.equals("l") && !component.equals("b") && !component.equals("q")) {
-            System.err.println("\033[0;31mInvalid choice\033[0m");
-            System.out.print("\033[0;94mWould you like to view materials or labors or both? (m/l/b) type 'q' to quit: \033[0m");
-            component = scanner.nextLine();
-        }
+
+        String component;
+         do {
+             System.out.print("\033[0;94mWould you like to view materials or labors or both? (m/l/b) type 'q' to quit: \033[0m");
+             component = scanner.nextLine();
+         } while (!component.equals("m") && !component.equals("l") && !component.equals("b") && !component.equals("q"));
 
         if (component.equals("q")) {
             return;
@@ -91,21 +90,14 @@ public class ComponentRemote {
     }
 
     public  void  deleteComponent(Project project){
-        System.out.print("Would you like to delete a material or a labor? (m/l) type 'q' to quit: ");
-        String component = scanner.nextLine();
-
-        if (component.equals("q")) {
-            return;
-        }
-
-        while (!component.equals("m") && !component.equals("l") && !component.equals("q")) {
-            System.err.println("\033[0;31mInvalid choice\033[0m");
-            System.out.print("Would you like to delete a material or a labor? (m/l): ");
+        String component;
+        do {
+            System.out.print("Would you like to delete a material or a labor? (m/l) type 'q' to quit: ");
             component = scanner.nextLine();
-            if (component.equals("q")) {
-                return;
-            }
-        }
+
+            if (component.equals("q")) return;
+
+        } while (!component.equals("m") && !component.equals("l") && !component.equals("q"));
 
 
         if (component.equals("m")) {
@@ -123,25 +115,18 @@ public class ComponentRemote {
             else
                 System.err.println("Labor not found");
         }
+
     }
 
     public void updateComponent(Project project){
 
-        System.out.print("Would you like to update a material or a labor? (m/l) type 'q' to quit: ");
-        String component = scanner.nextLine();
-
-        if (component.equals("q")) {
-            return;
-        }
-
-        while (!component.equals("m") && !component.equals("l") && !component.equals("q")) {
-            System.err.println("\033[0;31mInvalid choice\033[0m");
-            System.out.print("Would you like to update a material or a labor? (m/l): ");
+        String component;
+        do {
+            System.out.print("Would you like to update a material or a labor? (m/l) type 'q' to quit: ");
             component = scanner.nextLine();
-            if (component.equals("q")) {
-                return;
-            }
-        }
+
+            if (component.equals("q")) return;
+        } while (!component.equals("m") && !component.equals("l") && !component.equals("q")) ;
 
         if (component.equals("m")) {
             System.out.print("Enter the material name: ");
@@ -161,6 +146,8 @@ public class ComponentRemote {
 
         // update the project total cost after updating the material or labor
 
+
     }
+
 
 }

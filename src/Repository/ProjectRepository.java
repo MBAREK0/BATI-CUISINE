@@ -12,14 +12,13 @@ public interface ProjectRepository {
     Optional<Project> findByName(String name);
     List<Project> findAll();
     List<Project> findByStatus (String status);
-    Optional<Client> findClientByProjectId(int id);
     List<Component> findComponentsByProjectId(int id);
     List<Material> findMaterialsByProjectId(int id);
     List<Labor> findLaborsByProjectId(int id);
     List<Project> findProjectsByClientId(int id);
     Optional<Quote> findQuoteByProjectId(int id);
     Optional<Project> save(Project project);
-    void update(Project project);
+    Optional<Project> update(Project project);
     void delete(int id);
     Project mapResultSetToProject(ResultSet rs) throws SQLException;
 

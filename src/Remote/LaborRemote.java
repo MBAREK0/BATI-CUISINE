@@ -1,32 +1,32 @@
 package Remote;
 
 import Entity.Labor;
-import Repository.implementation.LaborRepositoryImpl;
-import Repository.implementation.MaterialRepositoryImpl;
+import Service.LaborService;
 
 import java.util.Optional;
 import java.util.Scanner;
 
 public class LaborRemote {
+
     private final Scanner scanner = new Scanner(System.in);
+    private LaborService laborService = new LaborService();
 
-    private LaborRepositoryImpl laborRepository = new LaborRepositoryImpl();
     public void main(int pid){
-        System.out.print("\033[0;36mDo you want to add Labors to the project? (y/n): \033[0m");
 
-        String choice1 = scanner.nextLine();
-        while (!choice1.equals("y") && !choice1.equals("n")) {
-            System.err.println("\033[0;31mInvalid choice\033[0m");
-            System.out.print("\033[0;35mDo you want to add Labors to the project? (y/n): \033[0m");
-            choice1 = scanner.nextLine();
-        }
+        String choice;
+        do {
+            System.out.print("\033[0;36mDo you want to add Labors to the project? (y/n): \033[0m");
+            choice  = scanner.nextLine();
+        }while (!choice.equals("y") && !choice.equals("n"));
 
-        if(choice1.equals("y")){
+
+        if(choice.equals("y")){
             createLabor(pid);
             main(pid);
         }else {
             return;
         }
+
     }
 
     public void createLabor(int pid){
@@ -46,28 +46,23 @@ public class LaborRemote {
         double hoursWorked = scanner.nextDouble();
         scanner.nextLine();
 
-        System.out.print("Enter the productivity factor (1.0 = standard, > 1.0 = high productivity): ");
-        double workerProductivity = scanner.nextDouble();
-        scanner.nextLine();
-
-        while (workerProductivity < 1.0) {
-            System.err.println("\033[0;31mInvalid productivity factor\033[0m");
+        double workerProductivity;
+        do {
             System.out.print("Enter the productivity factor (1.0 = standard, > 1.0 = high productivity): ");
             workerProductivity = scanner.nextDouble();
             scanner.nextLine();
-        }
+        } while (workerProductivity < 1.0);
+
 
         String componentType = "Labor";
 
-        System.out.print("Do you want to add a VAT rate? (y/n): ");
-        String choice = scanner.nextLine();
-        double vatRate = 0.0;
-        while (!choice.equals("y") && !choice.equals("n")) {
-            System.err.println("\033[0;31mInvalid choice\033[0m");
+        String choice;
+        do {
             System.out.print("Do you want to add a VAT rate? (y/n): ");
             choice = scanner.nextLine();
-        }
+        } while (!choice.equals("y") && !choice.equals("n"));
 
+        double vatRate = 0.0;
         if (choice.equals("y")) {
             System.out.print("Enter the VAT rate (%): ");
             vatRate = scanner.nextDouble();
@@ -76,10 +71,9 @@ public class LaborRemote {
 
         Double unitCost = hourlyRate * hoursWorked * workerProductivity;
 
-        //                Labor(String name, double unit_cost, double quantity, double vat_rate, int project_id, double hourly_rate, double hours_worked, double productivity_factor) {
         Labor labor = new Labor(type, unitCost, quantity, vatRate, pid, hourlyRate, hoursWorked, workerProductivity);
 
-        Optional<Labor> laborOptional = laborRepository.save(labor);
+        Optional<Labor> laborOptional = laborService.save(labor);
         if (laborOptional.isPresent()) {
             System.out.println("\033[0;32mLabor added successfully\033[0m");
         } else {
@@ -90,20 +84,18 @@ public class LaborRemote {
     }
 
     public Optional<Labor> updateLabor(int pid,String laborName) {
-        Labor labor = laborRepository.findLaborsByProjectId(pid).stream().filter(l -> l.getName().equals(laborName)).findFirst().orElse(null);
+        Labor labor = laborService.findLaborsByProjectId(pid).stream().filter(l -> l.getName().equals(laborName)).findFirst().orElse(null);
 
         if (labor == null) {
             System.err.println("\033[0;31mLabor not found\033[0m");
             return Optional.empty();
         }
 
-        System.out.print("what do you want to update? (type,hourly rate, hours worked, productivity factor): ");
-        String choice = scanner.nextLine();
-        while (!choice.equals("type") && !choice.equals("hourly rate") && !choice.equals("hours worked") && !choice.equals("productivity factor")) {
-            System.err.println("\033[0;31mInvalid choice\033[0m");
+        String choice;
+        do {
             System.out.print("what do you want to update? (type,hourly rate, hours worked, productivity factor): ");
             choice = scanner.nextLine();
-        }
+        } while (!choice.equals("type") && !choice.equals("hourly rate") && !choice.equals("hours worked") && !choice.equals("productivity factor"));
 
         switch (choice) {
             case "type":
@@ -131,10 +123,7 @@ public class LaborRemote {
                 break;
         }
 
-        return laborRepository.updateLabor(labor);
-
-
-
+        return laborService.updateLabor(labor);
 
     }
 }

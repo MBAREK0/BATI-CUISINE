@@ -2,7 +2,8 @@ package Remote;
 
 
 import Entity.Material;
-import Repository.implementation.MaterialRepositoryImpl;
+import Entity.Project;
+import Service.MaterialService;
 
 
 import java.util.Optional;
@@ -11,24 +12,25 @@ import java.util.Scanner;
 public class MaterialRemote {
     private final Scanner scanner = new Scanner(System.in);
     
-    private MaterialRepositoryImpl materialRepository = new MaterialRepositoryImpl();
+    private MaterialService materialService = new MaterialService();
 
     public void main(int pid){
-        System.out.print("\033[0;35mDo you want to add materials to the project? (y/n): \033[0m");
-        String choice1 = scanner.nextLine();
-        while (!choice1.equals("y") && !choice1.equals("n")) {
-            System.err.println("\033[0;31mInvalid choice\033[0m");
+        String choice1;
+        do{
             System.out.print("\033[0;35mDo you want to add materials to the project? (y/n): \033[0m");
-            choice1 = scanner.nextLine();
-        }
+             choice1 = scanner.nextLine();
+        } while (!choice1.equals("y") && !choice1.equals("n"));
+
 
         if(choice1.equals("y")){
             createMaterial(pid);
             main(pid);
-        }else {
-            return;
         }
+
+        return;
+
     }
+
     public void createMaterial(int pid) {
         System.out.print("Enter the name of the material: ");
         String name = scanner.nextLine();
@@ -40,73 +42,69 @@ public class MaterialRemote {
         scanner.nextLine();
 
         String componentType = "Material";
-        System.out.print("Do you want to add a VAT rate? (y/n): ");
-        String choice = scanner.nextLine();
+        String choice;
+
+       do {
+           System.out.print("Do you want to add a VAT rate? (y/n): ");
+           choice = scanner.nextLine();
+       } while (!choice.equals("y") && !choice.equals("n"));
+
         double vatRate = 0.0;
-        while (!choice.equals("y") && !choice.equals("n")) {
-            System.err.println("\033[0;31mInvalid choice\033[0m");
-            System.out.print("Do you want to add a VAT rate? (y/n): ");
-            choice = scanner.nextLine();
-        }
+
         if (choice.equals("y")) {
             System.out.print("Enter the VAT rate (%): ");
             vatRate = scanner.nextDouble();
             scanner.nextLine();
         }
 
-        System.out.print("Do you want to add a transport cost? (y/n): ");
-        choice = scanner.nextLine();
+       do {
+           System.out.print("Do you want to add a transport cost? (y/n): ");
+           choice = scanner.nextLine();
+       } while (!choice.equals("y") && !choice.equals("n"));
 
         double transportCost = 0.0;
-        while (!choice.equals("y") && !choice.equals("n")) {
-            System.err.println("\033[0;31mInvalid choice\033[0m");
-            System.out.print("Do you want to add a transport cost? (y/n): ");
-            choice = scanner.nextLine();
-        }
+
         if (choice.equals("y")) {
             System.out.print("Enter the transport cost (Dh): ");
             transportCost = scanner.nextDouble();
             scanner.nextLine();
         }
 
-        System.out.print("Enter the material quality coefficient (1.0 = standard, > 1.0 = high quality): ");
-        double qualityCoefficient = scanner.nextDouble();
+        double qualityCoefficient;
 
-        while (qualityCoefficient < 1.0) {
-            System.err.println("\033[0;31mInvalid choice\033[0m");
+        do {
             System.out.print("Enter the material quality coefficient (1.0 = standard, > 1.0 = high quality): ");
             qualityCoefficient = scanner.nextDouble();
-        }
-        scanner.nextLine();
-        // Material(String name, double unit_cost, double quantity, double vat_rate, int project_id, double transport_cost, double quality_coefficient)
+            scanner.nextLine();
+        } while (qualityCoefficient < 1.0);
+
+
         Material material = new Material(name, unitCost, quantity, vatRate, pid, transportCost, qualityCoefficient);
 
-      Optional<Material> material1 =  materialRepository.save(material);
-        if (material1.isPresent()) {
+        Optional<Material> op_material =  materialService.save(material);
+        if (op_material.isPresent()) {
             System.out.println("\033[0;32mMaterial created successfully\033[0m");
         } else {
             System.err.println("\033[0;31mMaterial creation failed\033[0m");
         }
 
 
-
-
     }
+
     public Optional<Material> updateMaterial(int pid, String materialName){
-        Material material = materialRepository.findByProjectId(pid).stream().filter(m -> m.getName().equals(materialName)).findFirst().orElse(null);
+        Material material = materialService.findByProjectId(pid).stream().filter(m -> m.getName().equals(materialName)).findFirst().orElse(null);
 
         if (material == null) {
             System.err.println("\033[0;31mMaterial not found\033[0m");
             return Optional.empty();
         }
 
-        System.out.print("what do you want to update? (unit cost, quantity, vat rate, transport cost, quality coefficient): ");
-        String choice = scanner.nextLine();
-        while (!choice.equals("unit cost") && !choice.equals("quantity") && !choice.equals("vat rate") && !choice.equals("transport cost") && !choice.equals("quality coefficient")) {
-            System.err.println("\033[0;31mInvalid choice\033[0m");
+        String choice;
+
+        do {
             System.out.print("what do you want to update? (unit cost, quantity, vat rate, transport cost, quality coefficient): ");
             choice = scanner.nextLine();
-        }
+        } while (!choice.equals("unit cost") && !choice.equals("quantity") && !choice.equals("vat rate") && !choice.equals("transport cost") && !choice.equals("quality coefficient"));
 
         switch (choice){
             case "unit cost":
@@ -143,13 +141,8 @@ public class MaterialRemote {
                 return Optional.empty();
         }
 
-        return materialRepository.updateMaterial(material);
+        return materialService.update(material);
     }
-    public void deleteMaterial() {
 
-    }
-    public void showMaterial() {
-
-    }
 
 }

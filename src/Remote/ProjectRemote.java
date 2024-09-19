@@ -19,7 +19,6 @@ public class ProjectRemote {
     private ProjectUi projectUi = new ProjectUi();
     private MainUi mainUi = new MainUi();
     private ProjectRepositoryImpl projectRepository = new ProjectRepositoryImpl();
-    private ClientRepositoryImpl clientRepository = new ClientRepositoryImpl();
     private ProjectService projectService = new ProjectService();
     private ComponentRemote componentRemote = new ComponentRemote();
 
@@ -64,7 +63,7 @@ public class ProjectRemote {
     public void createProject() {
         System.out.print("Enter the client name: ");
         String clientName = scanner.nextLine();
-        Optional<Client> clientOptional = clientRepository.findByName(clientName);
+        Optional<Client> clientOptional = projectService.findClientByName(clientName);
         int clientId ;
         if (clientOptional.isPresent()) {
             System.out.println("Client found");
@@ -85,34 +84,33 @@ public class ProjectRemote {
         double totalCost = 0.0;
 
         Project project = new Project(projectName, profitMargin, totalCost, projectStatus, surfaceArea, clientId);
-        Optional<Project> OpProject =   projectRepository.save(project);
+        Optional<Project> OpProject = projectService.save(project);
         if (!OpProject.isPresent()) {
             System.err.println("Project not saved");
             return;
         }
-         project = OpProject.get();
 
-        System.out.print("Do you want to add a component to the project? (y/n): ");
-        String choice = scanner.nextLine();
-        while (!choice.equals("y") && !choice.equals("n")) {
-            System.err.println("\033[0;31mInvalid choice\033[0m");
+        project = OpProject.get();
+
+        String choice;
+        do {
             System.out.print("Do you want to add a component to the project? (y/n): ");
             choice = scanner.nextLine();
-        }
+        } while (!choice.equals("y") && !choice.equals("n"));
+
+
         if(choice.equals("y")) {
             MaterialRemote materialRemote = new MaterialRemote();
             materialRemote.main(project.getProject_id());
             LaborRemote laborRemote = new LaborRemote();
             laborRemote.main(project.getProject_id());
 
-            System.out.print("Would you like to apply a profit margin to the project? (y/n): ");
-            String  choice1 = scanner.nextLine();
-            while (!choice1.equals("y") && !choice1.equals("n")) {
-                System.err.println("\033[0;31mInvalid choice\033[0m");
+            do {
                 System.out.print("Would you like to apply a profit margin to the project? (y/n): ");
-                choice1 = scanner.nextLine();
-            }
-            if (choice1.equals("n")) {
+                choice = scanner.nextLine();
+            } while (!choice.equals("y") && !choice.equals("n"));
+
+            if (choice.equals("n")) {
                 profitMargin = 0.0;
             }
 
@@ -123,31 +121,30 @@ public class ProjectRemote {
             System.out.println();
 
 
-
         }
 
         System.out.println("\033[0;32mProject added successfully\033[0m");
         System.out.println();
-        System.out.print("WOuld you like to Create A Quotation? (y/n): ");
-        String choice2 = scanner.nextLine();
-        while (!choice2.equals("y") && !choice2.equals("n")) {
-            System.err.println("\033[0;31mInvalid choice\033[0m");
+
+        do {
             System.out.print("WOuld you like to Create A Quotation? (y/n): ");
-            choice2 = scanner.nextLine();
-        }
-        if(choice2.equals("y")){
+            choice = scanner.nextLine();
+        } while (!choice.equals("y") && !choice.equals("n"));
+
+        if(choice.equals("y")){
             QuoteRemote quotationRemote = new QuoteRemote();
             quotationRemote.createQuote(project.getProject_id());
         }
 
 
     }
+
     public void updateProject(){
         System.out.print("Enter the project name: ");
         String projectName = scanner.nextLine();
         System.out.print("Enter the Client name: ");
         String clientName = scanner.nextLine();
-        Optional<Project> OpProject = projectRepository.findByNameAndClient(projectName, clientName);
+        Optional<Project> OpProject = projectService.findByNameAndClient(projectName, clientName);
 
         if (!OpProject.isPresent()) {
             System.err.println("Project not found");
@@ -156,41 +153,36 @@ public class ProjectRemote {
 
         Project project = OpProject.get();
 
-        System.out.print("Would you like to update the project information? (y/n): ");
-        String choice = scanner.nextLine();
-        while (!choice.equals("y") && !choice.equals("n")) {
-            System.err.println("\033[0;31mInvalid choice\033[0m");
+        String choice;
+        do {
             System.out.print("Would you like to update the project information? (y/n): ");
             choice = scanner.nextLine();
-        }
+        } while (!choice.equals("y") && !choice.equals("n")) ;
 
         if (choice.equals("y")) {
             updateProjectInfo(project);
         }
 
-
-        System.out.print("Would you like to mange component for this project? (y/n): ");
-        choice = scanner.nextLine();
-        while (!choice.equals("y") && !choice.equals("n")) {
-            System.err.println("\033[0;31mInvalid choice\033[0m");
-            System.out.print("Would you like to add a component to the project? (y/n): ");
+        do {
+            System.out.print("Would you like to mange component for this project? (y/n): ");
             choice = scanner.nextLine();
-        }
+        } while (!choice.equals("y") && !choice.equals("n")) ;
 
         if (choice.equals("y")) {
             updateProjectComponents(project);
+            Double T  =  projectService.calculateCost(project.getProject_id(), project.getProfit_margin());
+            project.setTotal_cost(T);
+            projectService.update(project);
+
+            Optional<Quote> quote = projectService.findQuoteByProjectId(project.getProject_id());
+            if (quote.isPresent()) {
+                Quote q = quote.get();
+                q.setEstimatedAmount(T);
+                projectService.updateQuote(q);
+            }
         }
 
-        Double T  =  projectService.calculateCost(project.getProject_id(), project.getProfit_margin());
-        project.setTotal_cost(T);
-        projectService.updateProject(project);
 
-        Optional<Quote> quote = projectService.findQuoteByProjectId(project.getProject_id());
-        if (quote.isPresent()) {
-            Quote q = quote.get();
-            q.setEstimatedAmount(T);
-            projectService.updateQuote(q);
-        }
 
         System.out.println("\033[0;32mProject updated successfully\033[0m");
 
@@ -268,13 +260,12 @@ public class ProjectRemote {
         System.out.println();
         System.out.println(yellow + "==== View Component ====================================" + reset);
         System.out.println();
-        System.out.print("would you like to view the components associated with the project? (y/n): ");
-        String choice = scanner.nextLine();
-        while (!choice.equals("y") && !choice.equals("n")) {
-            System.err.println("\033[0;31mInvalid choice\033[0m");
+        String choice;
+
+        do{
             System.out.print("would you like to view the components associated with the project? (y/n): ");
             choice = scanner.nextLine();
-        }
+        } while (!choice.equals("y") && !choice.equals("n"));
 
         if (choice.equals("y")) {
             componentRemote.viewComponent(project);
@@ -285,13 +276,11 @@ public class ProjectRemote {
         System.out.println();
         System.out.println(yellow+"==== Add Component ===================================="+reset);
         System.out.println();
-        System.out.print("Would you like to add a component to the project? (y/n): ");
-         choice = scanner.nextLine();
-        while (!choice.equals("y") && !choice.equals("n")) {
-            System.err.println("\033[0;31mInvalid choice\033[0m");
+
+        do {
             System.out.print("Would you like to add a component to the project? (y/n): ");
             choice = scanner.nextLine();
-        }
+        } while (!choice.equals("y") && !choice.equals("n")) ;
 
         if (choice.equals("y")) {
             MaterialRemote materialRemote = new MaterialRemote();
@@ -304,13 +293,11 @@ public class ProjectRemote {
         System.out.println();
         System.out.println(yellow+"==== Delete Component ================================="+reset);
         System.out.println();
-        System.out.print("Would you like to delete a component from the project? (y/n): ");
-        choice = scanner.nextLine();
-        while (!choice.equals("y") && !choice.equals("n")) {
-            System.err.println("\033[0;31mInvalid choice\033[0m");
+
+        do {
             System.out.print("Would you like to delete a component from the project? (y/n): ");
             choice = scanner.nextLine();
-        }
+        } while (!choice.equals("y") && !choice.equals("n")) ;
 
         if (choice.equals("y")) {
             componentRemote.deleteComponent(project);
@@ -320,13 +307,11 @@ public class ProjectRemote {
         System.out.println();
         System.out.println(yellow+"==== Update Component ================================="+reset);
         System.out.println();
-        System.out.print("Would you like to update a component from the project? (y/n): ");
-        choice = scanner.nextLine();
-        while (!choice.equals("y") && !choice.equals("n")) {
-            System.err.println("\033[0;31mInvalid choice\033[0m");
+
+        do {
             System.out.print("Would you like to update a component from the project? (y/n): ");
             choice = scanner.nextLine();
-        }
+        } while (!choice.equals("y") && !choice.equals("n"));
 
         if (choice.equals("y")) {
             componentRemote.updateComponent(project);
@@ -339,7 +324,7 @@ public class ProjectRemote {
         String projectName = scanner.nextLine();
         System.out.print("Enter the Client name: ");
         String clientName = scanner.nextLine();
-        Optional<Project> OpProject = projectRepository.findByNameAndClient(projectName, clientName);
+        Optional<Project> OpProject = projectService.findByNameAndClient(projectName, clientName);
 
         if (!OpProject.isPresent()) {
             System.err.println("Project not found");
@@ -348,15 +333,11 @@ public class ProjectRemote {
 
         Project project = OpProject.get();
 
-        System.out.print("\033[0;31mWould you like to delete the project? (y/n): \033[0m");
-
-        String choice = scanner.nextLine();
-        while (!choice.equals("y") && !choice.equals("n")) {
-            System.err.println("\033[0;31mInvalid choice\033[0m");
+        String choice;
+        do {
             System.out.print("\033[0;31mWould you like to delete the project? (y/n): \033[0m");
-
             choice = scanner.nextLine();
-        }
+        } while (!choice.equals("y") && !choice.equals("n"));
 
         if (choice.equals("y")) {
             projectRepository.delete(project.getProject_id());
@@ -369,7 +350,8 @@ public class ProjectRemote {
         String projectName = scanner.nextLine();
         System.out.print("Enter the Client name: ");
         String clientName = scanner.nextLine();
-        Optional<Project> project = projectRepository.findByNameAndClient(projectName, clientName);
+        Optional<Project> project = projectService.findByNameAndClient(projectName, clientName);
+
         if (!project.isPresent()) {
             System.err.println("Project not found");
             return;
@@ -490,6 +472,7 @@ public class ProjectRemote {
 
     // Updated allProjects method to include client names
     public void allProjects() {
+
         System.out.print("Choose the status of the project you want to view ('InProgress', 'Completed', 'Cancelled'): ");
         String status = scanner.nextLine();
         status = status.toLowerCase();
@@ -499,13 +482,14 @@ public class ProjectRemote {
             status = scanner.nextLine();
             status = status.toLowerCase(); // Ensure status remains lowercase
         }
-        List<Project> projects = projectRepository.findByStatus(status);
+
+        List<Project> projects = projectService.findByStatus(status);
         if (projects.isEmpty()) {
             System.err.println("No project found");
             return;
         }
 
-        List<Client> clients = clientRepository.findByProjectStatus(status);
+        List<Client> clients = projectService.findClientByProjectStatus(status);
 
         HashMap<Integer, String> clientMap = new HashMap<>();
         for (Client client : clients) {

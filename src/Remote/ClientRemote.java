@@ -5,6 +5,7 @@ import ConsoleUi.MainUi;
 import Entity.Client;
 import Entity.Project;
 import Repository.implementation.ClientRepositoryImpl;
+import Service.ClientService;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +19,7 @@ public class ClientRemote {
     private final ClientUi clientUi = new ClientUi();
     private final MainUi mainUi = new MainUi();
     private ClientRepositoryImpl clientRepository = new ClientRepositoryImpl();
+    private ClientService clientService = new ClientService();
 
     public void main() {
         Boolean isRunning = true;
@@ -68,59 +70,40 @@ public class ClientRemote {
         String address = scanner.nextLine();
         System.out.print("Enter client phone: ");
         String phone = scanner.nextLine();
-        System.out.print("Is client professional? (y/n): ");
-        String isProfessional = scanner.nextLine();
-        while (!isProfessional.equals("y") && !isProfessional.equals("n")) {
-            System.err.println("\033[0;31mInvalid choice\033[0m");
-            System.out.print("Is client professional? (y/n): ");
-             isProfessional = scanner.nextLine();
-        }
 
-        switch (isProfessional) {
-            case "y":
-                isProfessional =  "true";
-                break;
-            case "n":
-                isProfessional = "false";
-                break;
-            default:
-                System.err.println("\033[0;31mInvalid choice\033[0m");
-                return;
-        }
-        System.out.print("Do you want to add discount? (y/n): ");
-        String choice = scanner.nextLine();
-        Double discount;
-        while (!choice.equals("y") && !choice.equals("n")) {
-            System.err.println("\033[0;31mInvalid choice\033[0m");
-            System.out.print("Do you want to add discount? (y/n): ");
-            choice = scanner.nextLine();
-        }
-        switch (choice) {
-            case "y":
-                System.out.print("Enter the discount percentage (%): ");
-                 discount = scanner.nextDouble();
-                break;
-            case "n":
-                discount = 0.0;
-                break;
-            default:
-                System.err.println("\033[0;31mInvalid choice\033[0m");
-                return;
-        }
+        String isProfessional;
+       do {
+           System.out.print("Is client professional? (y/n): ");
+           isProfessional = scanner.nextLine();
+       }while (!isProfessional.equals("y") && !isProfessional.equals("n")) ;
 
+        isProfessional = isProfessional.equals("y") ? "true" : "false";
+        String choice;
+       do {
+           System.out.print("Do you want to add discount? (y/n): ");
+           choice = scanner.nextLine();
+       }while (!choice.equals("y") && !choice.equals("n"));
+
+        Double discount = 0.0;
+        if (choice.equals("y")) {
+            System.out.print("Enter the discount percentage: ");
+            discount = scanner.nextDouble();
+            scanner.nextLine();
+        }
 
         Client client = new Client(name, address, phone, parseBoolean(isProfessional),discount);
-        clientRepository.save(client);
-        System.out.println("\033[0;32mClient created successfully\033[0m");
-
-
+        if(clientService.save(client).isPresent())
+            System.out.println("\033[0;32mClient created successfully\033[0m");
+        else
+            System.err.println("\033[0;31mClient creation failed\033[0m");
     }
+
     public void updateClient(){
         System.out.print("Enter client name: ");
         String name_str= scanner.nextLine();
 
 
-        Optional<Client> opClient = clientRepository.findByName(name_str);
+        Optional<Client> opClient = clientService.findByName(name_str);
 
         Client client = null;
 
@@ -129,19 +112,19 @@ public class ClientRemote {
             System.out.println(client);
         } else {
             System.err.println("\033[0;31mClient not found.\033[0m");
-
             return;
         }
+
         int id = client.getClient_id();
 
+        String choice;
+
         // Update client name -------------------------
-        System.out.print("Do you want to update client name? (y/n): ");
-        String choice = scanner.nextLine();
-        while (!choice.equals("y") && !choice.equals("n")) {
-            System.err.println("\033[0;31mInvalid choice\033[0m");
-            System.out.print("Do you want to update client name? (y/n): ");
-            choice = scanner.nextLine();
-        }
+       do {
+           System.out.print("Do you want to update client name? (y/n): ");
+           choice = scanner.nextLine();
+       } while (!choice.equals("y") && !choice.equals("n"));
+
         String name ;
         if (choice.equals("y")){
             System.out.print("Enter New client name: ");
@@ -151,13 +134,12 @@ public class ClientRemote {
         }
 
         // update client address -------------------------
-        System.out.print("Do you want to update client address? (y/n): ");
-        choice = scanner.nextLine();
-        while (!choice.equals("y") && !choice.equals("n")) {
-            System.err.println("\033[0;31mInvalid choice\033[0m");
+        do {
             System.out.print("Do you want to update client address? (y/n): ");
             choice = scanner.nextLine();
         }
+        while (!choice.equals("y") && !choice.equals("n")) ;
+
         String address ;
         if (choice.equals("y")){
             System.out.print("Enter New client address: ");
@@ -167,13 +149,12 @@ public class ClientRemote {
         }
 
         // update client phone -------------------------
-        System.out.print("Do you want to update client phone? (y/n): ");
-        choice = scanner.nextLine();
-        while (!choice.equals("y") && !choice.equals("n")) {
-            System.err.println("\033[0;31mInvalid choice\033[0m");
-            System.out.print("Do you want to update client phone? (y/n): ");
-            choice = scanner.nextLine();
-        }
+       do {
+           System.out.print("Do you want to update client phone? (y/n): ");
+           choice = scanner.nextLine();
+       }
+        while (!choice.equals("y") && !choice.equals("n"));
+
         String phone ;
         if (choice.equals("y")){
             System.out.print("Enter New client phone: ");
@@ -183,22 +164,19 @@ public class ClientRemote {
         }
 
         // update client professional status -------------------------
-        System.out.print("Do you want to update client professional status? (y/n): ");
-        choice = scanner.nextLine();
-        while (!choice.equals("y") && !choice.equals("n")) {
-            System.err.println("\033[0;31mInvalid choice\033[0m");
+        do {
             System.out.print("Do you want to update client professional status? (y/n): ");
             choice = scanner.nextLine();
-        }
+        }  while (!choice.equals("y") && !choice.equals("n")) ;
+
         String isProfessional ;
         if (choice.equals("y")){
-            System.out.print("Is client professional? (y/n): ");
-            isProfessional = scanner.nextLine();
-            while (!isProfessional.equals("y") && !isProfessional.equals("n")) {
-                System.err.println("\033[0;31mInvalid choice\033[0m");
+            do {
                 System.out.print("Is client professional? (y/n): ");
                 isProfessional = scanner.nextLine();
             }
+            while (!isProfessional.equals("y") && !isProfessional.equals("n"));
+
             isProfessional = isProfessional.equals("y") ? "true" : "false";
 
         }else {
@@ -206,14 +184,13 @@ public class ClientRemote {
         }
 
         // update client discount -------------------------
-        System.out.print("Do you want to update client discount? (y/n): ");
-        choice = scanner.nextLine();
-        Double discount;
-        while (!choice.equals("y") && !choice.equals("n")) {
-            System.err.println("\033[0;31mInvalid choice\033[0m");
+        do {
             System.out.print("Do you want to update client discount? (y/n): ");
             choice = scanner.nextLine();
-        }
+        } while (!choice.equals("y") && !choice.equals("n"));
+
+        Double discount;
+
         if (choice.equals("y")){
             System.out.print("Enter the New discount percentage: ");
             discount = scanner.nextDouble();
@@ -225,15 +202,17 @@ public class ClientRemote {
         // update client in database
         Client c = new Client(name, address, phone, parseBoolean(isProfessional),discount);
         c.setClient_id(client.getClient_id());
-        clientRepository.update(c);
+        if (clientService.update(c).isPresent()){
+            System.out.println("\033[0;32mClient updated successfully\033[0m");
+        }else
+            System.err.println("\033[0;31mFailed to update client \033[0m");
 
-        System.out.println("\033[0;32mClient updated successfully\033[0m");
     }
 
     public void deleteClient(){
         System.out.print("Enter client name you want to delete: ");
         String name = scanner.nextLine();
-        Optional<Client> opClient = clientRepository.findByName(name);
+        Optional<Client> opClient = clientService.findByName(name);
 
         Client client = null;
 
@@ -243,14 +222,14 @@ public class ClientRemote {
             System.err.println("\033[0;31mClient not found.\033[0m");
             return;
         }
-        clientRepository.delete(client.getClient_id());
+        clientService.delete(client.getClient_id());
         System.out.println("\033[0;32mClient deleted successfully\033[0m");
 
     }
     public void showClient(){
         System.out.print("Enter client name you want to show: ");
         String name = scanner.nextLine();
-        Optional<Client> opClient = clientRepository.findByName(name);
+        Optional<Client> opClient = clientService.findByName(name);
 
         Client client = null;
 
@@ -265,7 +244,7 @@ public class ClientRemote {
     public void clientProjects(){
         System.out.print("Enter client name you want to show his projects: ");
         String name = scanner.nextLine();
-        Optional<Client> opClient = clientRepository.findByName(name);
+        Optional<Client> opClient = clientService.findByName(name);
 
         Client client = null;
         if (opClient.isPresent()) {
@@ -275,7 +254,7 @@ public class ClientRemote {
             return;
         }
 
-        List<Project>  projects =   clientRepository.findProjectsByClientId(client.getClient_id());
+        List<Project>  projects =   clientService.findProjects(client.getClient_id());
         if (projects.isEmpty()) {
             System.out.println("No projects found for client " + client.getName());
         } else {

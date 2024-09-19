@@ -39,8 +39,10 @@ public class Material extends Component {
     }
 
     public Double calculateCost() {
-        Double totalCost =  getUnit_cost() * getQuantity() * this.quality_coefficient  + this.transport_cost ;
-        return totalCost *  (1 + ( getVat_rate() / 100 ));
+        Double totalCost =  getUnit_cost() * getQuantity() * this.quality_coefficient   ;
+        totalCost =  totalCost *  (1 + ( getVat_rate() / 100 ));
+
+        return  totalCost +  this.transport_cost;
     }
 
     @Override

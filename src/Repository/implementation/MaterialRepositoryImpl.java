@@ -24,6 +24,29 @@ public class MaterialRepositoryImpl implements MaterialRepository  {
     public MaterialRepositoryImpl() {
         this.connection = DatabaseConnection.getConnection();
     }
+
+    @Override
+    public Optional<Material> save(Material material) {
+        Optional<Component> component =  componentRepository.save(material);
+        if(component.isPresent()){
+
+            String query = "INSERT INTO Materials (component_id, transport_cost, quality_coefficient) VALUES (?, ?, ?)";
+            try (PreparedStatement ps = connection.prepareStatement(query)) {
+                ps.setInt(1, component.get().getComponent_id());
+                ps.setDouble(2, material.getTransport_cost());
+                ps.setDouble(3, material.getQuality_coefficient());
+                ps.executeUpdate();
+                material.setComponent_id(component.get().getComponent_id());
+
+                return Optional.of(material);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return Optional.empty();
+    }
+
+    @Override
     public Optional<Material> findById(int id) {
         String query = "SELECT " +
                 "    c.component_id, " +
@@ -87,27 +110,8 @@ public class MaterialRepositoryImpl implements MaterialRepository  {
         }
         return materials;
     }
+
     @Override
-    public Optional<Material> save(Material material) {
-      Optional<Component> component =  componentRepository.save(material);
-        if(component.isPresent()){
-
-            String query = "INSERT INTO Materials (component_id, transport_cost, quality_coefficient) VALUES (?, ?, ?)";
-            try (PreparedStatement ps = connection.prepareStatement(query)) {
-                ps.setInt(1, component.get().getComponent_id());
-                ps.setDouble(2, material.getTransport_cost());
-                ps.setDouble(3, material.getQuality_coefficient());
-                ps.executeUpdate();
-                material.setComponent_id(component.get().getComponent_id());
-
-                return Optional.of(material);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-        return Optional.empty();
-    }
-
     public Optional<Material> updateMaterial(Material material){
         Optional<Component> component =  componentRepository.update(material);
         if(component.isPresent()){
@@ -124,9 +128,12 @@ public class MaterialRepositoryImpl implements MaterialRepository  {
         }
         return Optional.empty();
     }
+
+    @Override
     public Boolean deleteMaterial(int pid, String materialName){
         return componentRepository.delete(pid, materialName, MaterialOrLabor.MATERIAL);
     }
+
     @Override
     public Material mapResultSetToMaterial(ResultSet rs) throws SQLException {
         int component_id = rs.getInt("component_id");

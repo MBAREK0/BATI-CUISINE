@@ -112,23 +112,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
     }
 
 
-    @Override
-    public Optional<Client> findClientByProjectId ( int id){
-       int client_id = 0;
-        String query = "SELECT client_id FROM Projects WHERE project_id = ?";
-        try (PreparedStatement ps = connection.prepareStatement(query)) {
-            ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                client_id = rs.getInt("client_id");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return new ClientRepositoryImpl().findById(client_id);
-
-    }
-
+        @Override
         public List<Component> findComponentsByProjectId(int id) {
            return new ComponentRepositoryImpl().findByProjectId(id);
         }
@@ -188,7 +172,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
         }
 
         @Override
-        public void update (Project project){
+        public Optional<Project> update (Project project){
             String query = "UPDATE Projects SET project_name = ?, profit_margin = ?, total_cost = ?, project_status = ?, surface_area = ?, client_id = ? WHERE project_id = ?";
             try (PreparedStatement ps = connection.prepareStatement(query)) {
                 ps.setString(1, project.getProject_name());
@@ -202,6 +186,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
+            return Optional.of(project);
         }
 
         @Override
