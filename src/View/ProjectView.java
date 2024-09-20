@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 
-public class ProjectRemote {
+public class ProjectView {
     private Scanner scanner = new Scanner(System.in);
     private ProjectUi projectUi = new ProjectUi();
     private MainUi mainUi = new MainUi();
@@ -99,7 +99,7 @@ public class ProjectRemote {
 
 
         if(choice.equals("y")) {
-            MaterialRemote materialRemote = new MaterialRemote();
+            MaterialView materialRemote = new MaterialView();
             materialRemote.main(project.getProject_id());
             LaborView laborRemote = new LaborView();
             laborRemote.main(project.getProject_id());
@@ -131,7 +131,7 @@ public class ProjectRemote {
         } while (!choice.equals("y") && !choice.equals("n"));
 
         if(choice.equals("y")){
-            QuoteRemote quotationRemote = new QuoteRemote();
+            QuoteView quotationRemote = new QuoteView();
             quotationRemote.createQuote(project.getProject_id());
         }
 
@@ -282,7 +282,7 @@ public class ProjectRemote {
         } while (!choice.equals("y") && !choice.equals("n")) ;
 
         if (choice.equals("y")) {
-            MaterialRemote materialRemote = new MaterialRemote();
+            MaterialView materialRemote = new MaterialView();
             materialRemote.main(project.getProject_id());
             LaborView laborRemote = new LaborView();
             laborRemote.main(project.getProject_id());

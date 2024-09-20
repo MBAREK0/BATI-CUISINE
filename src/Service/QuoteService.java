@@ -10,6 +10,7 @@ public class QuoteService {
 
     // ------------------- Quote CRUD -------------------
     public Optional<Quote> save(Quote quote){
+
         return quoteRepository.save(quote);
     }
     public Optional<Quote> findByProjectId(int project_id){

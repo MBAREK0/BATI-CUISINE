@@ -14,14 +14,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 
-public class QuoteRemote {
+public class QuoteView {
 
     private Scanner scanner = new Scanner(System.in);
     private ProjectService projectService = new ProjectService();
     private DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private QuoteRepositoryImpl quoteRepository = new QuoteRepositoryImpl();
     private QuoteService quoteService = new QuoteService();
-
 
     // Define colors
     private static final String WHITE_TEXT_ON_YELLOW_BG = "\033[97;43m";
@@ -74,9 +73,21 @@ public class QuoteRemote {
 
     public void generateQuote(){
         System.out.print("Enter the project name: ");
-        String project_name = scanner.nextLine();
+        String project_name;
+        try {
+            project_name = scanner.nextLine();
+        }catch (Exception e){
+            System.err.println("\033[0;31mInvalid project name\033[0m");
+            return;
+        }
         System.out.print("Enter the client name: ");
-        String client_name = scanner.nextLine();
+        String client_name;
+        try {
+            client_name = scanner.nextLine();
+        }catch (Exception e){
+            System.err.println("\033[0;31mInvalid client name\033[0m");
+            return;
+        }
        Optional<Project> p = new ProjectService().findByNameAndClient(project_name,client_name);
        if (!p.isPresent()){
            System.err.println("\033[0;31mProject not found\033[0m");
@@ -88,9 +99,21 @@ public class QuoteRemote {
 
     public void viewQuote(){
         System.out.print("Enter the project name: ");
-        String project_name = scanner.nextLine();
+        String project_name ;
+        try {
+            project_name = scanner.nextLine();
+        }catch (Exception e){
+            System.err.println("\033[0;31mInvalid project name\033[0m");
+            return;
+        }
         System.out.print("Enter the client name: ");
-        String client_name = scanner.nextLine();
+        String client_name ;
+        try {
+            client_name = scanner.nextLine();
+        }catch (Exception e){
+            System.err.println("\033[0;31mInvalid client name\033[0m");
+            return;
+        }
         Optional<Project> p = projectService.findByNameAndClient(project_name,client_name);
         if (!p.isPresent()){
             System.err.println("\033[0;31mProject not found\033[0m");
@@ -121,30 +144,46 @@ public class QuoteRemote {
         Boolean check_date;
        do {
            System.out.print("Enter the issue date (yyyy-mm-dd): ");
-           issue_date = LocalDate.parse(scanner.nextLine(), dateFormatter);
+          try {
+                issue_date = LocalDate.parse(scanner.nextLine(), dateFormatter);
+          }catch (Exception e){
+              System.err.println("\033[0;31mInvalid date\033[0m");
+              return;
+            }
 
            System.out.print("Enter the validity date (yyyy-mm-dd): ");
-           validity_date = LocalDate.parse(scanner.nextLine(), dateFormatter);
+          try {
+            validity_date = LocalDate.parse(scanner.nextLine(), dateFormatter);
+            }catch (Exception e){
+                System.err.println("\033[0;31mInvalid date\033[0m");
+                return;
+            }
 
            check_date = DateChecker.isValidPeriod(issue_date, validity_date);
 
        } while (!check_date);
 
-        String accepted;
-        do {
-            System.out.print("Is the quote accepted? (y/n): ");
-            accepted = scanner.nextLine();
-        } while (!accepted.equals("y") && !accepted.equals("n"));
+        Boolean accepted = false;
 
         String save;
         do {
             System.out.print("Would you like to save the quote? (y/n): ");
-            save = scanner.nextLine();
+            try {
+                save = scanner.nextLine();
+            }catch (Exception e){
+                System.err.println("\033[0;31mInvalid choice\033[0m");
+                return;
+            }
         } while (!save.equals("y") && !save.equals("n")) ;
 
         if (save.equals("n"))  return;
 
-        Quote quote = new Quote(pid, estimated_amount, issue_date, validity_date, accepted.equals("y"));
+        Quote quote = new Quote(pid, estimated_amount, issue_date, validity_date, accepted);
+
+        if (quoteService.findByProjectId(pid).isPresent()){
+            System.err.println("\033[0;31mQuote already exists for this project, you can update it\033[0m");
+            return;
+        }
 
         if (quoteService.save(quote).isPresent()){
             System.out.println();
@@ -190,9 +229,21 @@ public class QuoteRemote {
 
     public void updateQuote(){
         System.out.print("Enter the project name: ");
-        String project_name = scanner.nextLine();
+        String project_name ;
+        try {
+            project_name = scanner.nextLine();
+        }catch (Exception e){
+            System.err.println("\033[0;31mInvalid project name\033[0m");
+            return;
+        }
         System.out.print("Enter the client name: ");
-        String client_name = scanner.nextLine();
+        String client_name ;
+        try {
+            client_name = scanner.nextLine();
+        }catch (Exception e){
+            System.err.println("\033[0;31mInvalid client name\033[0m");
+            return;
+        }
         Optional<Project> p = new ProjectService().findByNameAndClient(project_name,client_name);
         if (!p.isPresent()){
             System.err.println("\033[0;31mProject not found\033[0m");
@@ -207,58 +258,60 @@ public class QuoteRemote {
             return;
         }
         Quote quote = OpQuote.get();
-        System.out.print("would you like to update the issue date? (y/n): ");
-        String choice = scanner.nextLine();
-        while (!choice.equals("y") && !choice.equals("n")) {
-            System.err.println("\033[0;31mInvalid choice\033[0m");
+        String choice;
+        do {
             System.out.print("would you like to update the issue date? (y/n): ");
-            choice = scanner.nextLine();
-        }
+            try {
+                choice = scanner.nextLine();
+            }catch (Exception e){
+                System.err.println("\033[0;31mInvalid choice\033[0m");
+                return;
+            }
+        } while (!choice.equals("y") && !choice.equals("n"));
+
         if (choice.equals("y")) {
             System.out.print("Enter the new issue date (yyyy-mm-dd): ");
-            LocalDate issue_date = LocalDate.parse(scanner.nextLine(), dateFormatter);
+            LocalDate issue_date ;
+            try {
+                issue_date = LocalDate.parse(scanner.nextLine(), dateFormatter);
+            }catch (Exception e){
+                System.err.println("\033[0;31mInvalid date\033[0m");
+                return;
+            }
             quote.setIssueDate(issue_date);
         }
 
-        System.out.print("would you like to update the validity date? (y/n): ");
-        choice = scanner.nextLine();
-        while (!choice.equals("y") && !choice.equals("n")) {
-            System.err.println("\033[0;31mInvalid choice\033[0m");
+        do {
             System.out.print("would you like to update the validity date? (y/n): ");
             choice = scanner.nextLine();
-        }
+        } while (!choice.equals("y") && !choice.equals("n")) ;
 
         if (choice.equals("y")) {
             System.out.print("Enter the new validity date (yyyy-mm-dd): ");
-            LocalDate validity_date = LocalDate.parse(scanner.nextLine(), dateFormatter);
+            LocalDate validity_date ;
+            try {
+                validity_date = LocalDate.parse(scanner.nextLine(), dateFormatter);
+            }catch (Exception e){
+                System.err.println("\033[0;31mInvalid date\033[0m");
+                return;
+            }
             quote.setValidityDate(validity_date);
         }
 
-        System.out.print("would you like to update the accepted status? (y/n): ");
-        choice = scanner.nextLine();
-        while (!choice.equals("y") && !choice.equals("n")) {
-            System.err.println("\033[0;31mInvalid choice\033[0m");
-            System.out.print("would you like to update the accepted status? (y/n): ");
-            choice = scanner.nextLine();
-        }
-        if (choice.equals("y")) {
-            System.out.print("Is the quote accepted? (y/n): ");
-            String accepted = scanner.nextLine();
-            while (!accepted.equals("y") && !accepted.equals("n")) {
-                System.err.println("\033[0;31mInvalid choice\033[0m");
-                System.out.print("Is the quote accepted? (y/n): ");
-                accepted = scanner.nextLine();
-            }
-            quote.setAccepted(accepted.equals("y"));
-        }
+        if (!acceptQuote(quote)) return;
 
-        System.out.print("Would you like to save the quote? (y/n): ");
-        String save = scanner.nextLine();
-        while (!save.equals("y") && !save.equals("n")) {
-            System.err.println("\033[0;31mInvalid choice\033[0m");
+        String save;
+
+        do {
             System.out.print("Would you like to save the quote? (y/n): ");
-            save = scanner.nextLine();
-        }
+            try {
+                save = scanner.nextLine();
+            }catch (Exception e){
+                System.err.println("\033[0;31mInvalid choice\033[0m");
+                return;
+            }
+        }  while (!save.equals("y") && !save.equals("n")) ;
+
         if (save.equals("n")) {
             return;
         }
@@ -266,6 +319,27 @@ public class QuoteRemote {
         System.out.println();
         System.out.println("\033[0;32mQuote updated successfully\033[0m");
 
+    }
+
+    private Boolean acceptQuote(Quote quote) {
+        String choice;
+        do {
+            System.out.print("Would you like to accept the quote? (y/n): ");
+            choice = scanner.nextLine();
+        } while (!choice.equals("y") && !choice.equals("n"));
+
+        LocalDate today = LocalDate.now();
+        if (choice.equals("y")) {
+            if (today.isAfter(quote.getValidityDate())) {
+                System.err.println("\033[0;31mQuote is expired\033[0m");
+                Project project = projectService.findById(quote.getProjectId()).get();
+                project.setProject_status("Cancelled");
+                projectService.update(project);
+                return false;
+            }
+        }
+
+        return choice.equals("y");
     }
 
     public void deleteQuote(){
@@ -299,6 +373,7 @@ public class QuoteRemote {
         System.out.println();
         System.out.println("\033[0;32mQuote deleted successfully\033[0m");
     }
+
     public void printQuoteDetails(Project project, Client client, List<Material> materials, List<Labor> labors, Quote quote) {
         // Print table header
         printTableHeader();
@@ -343,19 +418,19 @@ public class QuoteRemote {
         // Print table footer
         printTableFooter();
     }
+
     private void printTableHeader() {
         System.out.println(WHITE_TEXT_ON_YELLOW_BG + BORDER + SEPARATOR.repeat(TABLE_WIDTH - 2) + BORDER + RESET);
     }
+
     private void printTableFooter() {
         System.out.println(WHITE_TEXT_ON_YELLOW_BG + BORDER + SEPARATOR.repeat(TABLE_WIDTH - 2) + BORDER + RESET);
     }
+
     private void printTableRow(String text,String COLOR) {
         String formattedText = String.format("%-" + (TABLE_WIDTH - 4) + "s", text);
         System.out.println(COLOR + BORDER + formattedText + BORDER + RESET);
     }
-
-
-
 
 }
 

@@ -8,7 +8,7 @@ import Service.MaterialService;
 import java.util.Optional;
 import java.util.Scanner;
 
-public class MaterialRemote {
+public class MaterialView {
     private final Scanner scanner = new Scanner(System.in);
     
     private MaterialService materialService = new MaterialService();

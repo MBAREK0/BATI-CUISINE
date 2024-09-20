@@ -4,13 +4,13 @@ import ConsoleUi.MainUi;
 
 import java.util.Scanner;
 
-public class Remote {
+public class MainView {
 
     private Scanner scanner = new Scanner(System.in);
     private MainUi mainUi = new MainUi();
-    private ProjectRemote projectRemote = new ProjectRemote();
+    private ProjectView projectRemote = new ProjectView();
     private ClientView clientRemote = new ClientView();
-    private QuoteRemote quoteRemote = new QuoteRemote();
+    private QuoteView quoteRemote = new QuoteView();
 
     public void main() {
 

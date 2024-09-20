@@ -1,10 +1,10 @@
-import Remote.Remote;
+import View.MainView;
 
 
 public class Main {
     public static void main(String[] args) {
 
-        Remote remote = new Remote();
+        MainView remote = new MainView();
         remote.main();
 
     }

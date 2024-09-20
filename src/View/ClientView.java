@@ -1,4 +1,4 @@
-package Remote;
+package View;
 
 import ConsoleUi.ClientUi;
 import ConsoleUi.MainUi;
@@ -13,7 +13,7 @@ import java.util.Scanner;
 
 import static java.lang.Boolean.parseBoolean;
 
-public class ClientRemote {
+public class ClientView {
 
     private final Scanner scanner = new Scanner(System.in);
     private final ClientUi clientUi = new ClientUi();

@@ -3,7 +3,6 @@ package Repository.implementation;
 import Database.DatabaseConnection;
 import Entity.Component;
 import Entity.Labor;
-import Entity.Material;
 import Entity.MaterialOrLabor;
 import Repository.LaborRepository;
 
@@ -22,6 +21,26 @@ public class LaborRepositoryImpl implements LaborRepository {
     public LaborRepositoryImpl() {
         this.connection = DatabaseConnection.getConnection();
     }
+
+    @Override
+    public Optional<Labor> save(Labor labor) {
+        Optional<Component> component = componentRepository.save(labor);
+        if (component.isPresent()) {
+            String query = "INSERT INTO Labor (component_id, hourly_rate, hours_worked, productivity_factor) VALUES (?, ?, ?, ?)";
+            try (PreparedStatement ps = connection.prepareStatement(query)) {
+                ps.setInt(1, component.get().getComponent_id());
+                ps.setDouble(2, labor.getHourly_rate());
+                ps.setDouble(3, labor.getHours_worked());
+                ps.setDouble(4, labor.getProductivity_factor());
+                ps.executeUpdate();
+                return Optional.of(labor);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return Optional.empty();
+    }
+
     @Override
     public List<Labor> findLaborsByProjectId(int id) {
         String query = "SELECT \n" +
@@ -56,24 +75,6 @@ public class LaborRepositoryImpl implements LaborRepository {
     }
 
     @Override
-    public Optional<Labor> save(Labor labor) {
-        Optional<Component> component = componentRepository.save(labor);
-        if (component.isPresent()) {
-            String query = "INSERT INTO Labor (component_id, hourly_rate, hours_worked, productivity_factor) VALUES (?, ?, ?, ?)";
-            try (PreparedStatement ps = connection.prepareStatement(query)) {
-                ps.setInt(1, component.get().getComponent_id());
-                ps.setDouble(2, labor.getHourly_rate());
-                ps.setDouble(3, labor.getHours_worked());
-                ps.setDouble(4, labor.getProductivity_factor());
-                ps.executeUpdate();
-                return Optional.of(labor);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-        return Optional.empty();
-    }
-
     public Optional<Labor> updateLabor(Labor labor){
         Optional<Component> component = componentRepository.update(labor);
         if(component.isPresent()){
@@ -91,9 +92,12 @@ public class LaborRepositoryImpl implements LaborRepository {
         }
         return Optional.empty();
     }
+
+    @Override
     public Boolean deleteLabor(int pid, String laborName){
        return componentRepository.delete(pid, laborName, MaterialOrLabor.LABOR);
     }
+
     @Override
     public Labor mapResultSetToComponent(ResultSet rs) throws SQLException {
         int component_id = rs.getInt("component_id");

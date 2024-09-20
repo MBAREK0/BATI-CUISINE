@@ -8,16 +8,10 @@ import java.util.Optional;
 import Entity.*;
 
 public interface ProjectRepository {
-    Optional<Project> findById(int id);
-    Optional<Project> findByName(String name);
-    List<Project> findAll();
-    List<Project> findByStatus (String status);
-    List<Component> findComponentsByProjectId(int id);
-    List<Material> findMaterialsByProjectId(int id);
-    List<Labor> findLaborsByProjectId(int id);
-    List<Project> findProjectsByClientId(int id);
-    Optional<Quote> findQuoteByProjectId(int id);
     Optional<Project> save(Project project);
+    Optional<Project> findById(int id);
+    List<Project> findByStatus (String status);
+    List<Project> findProjectsByClientId(int id);
     Optional<Project> update(Project project);
     void delete(int id);
     Project mapResultSetToProject(ResultSet rs) throws SQLException;

@@ -6,7 +6,7 @@ import Service.LaborService;
 import java.util.Optional;
 import java.util.Scanner;
 
-public class LaborRemote {
+public class LaborView {
 
     private final Scanner scanner = new Scanner(System.in);
     private LaborService laborService = new LaborService();

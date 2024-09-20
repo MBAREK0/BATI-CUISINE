@@ -17,25 +17,6 @@ public class QuoteRepositoryImpl implements QuoteRepository {
     }
 
     @Override
-    public Optional<Quote> findByProjectId(int project_id) {
-        String query = "SELECT * FROM Quotes WHERE project_id = ?";
-
-        try (PreparedStatement ps = connection.prepareStatement(query)) {
-            ps.setInt(1, project_id);
-
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return Optional.of(mapResultSetToQuote(rs));
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            // Log or handle the exception as needed
-        }
-        return Optional.empty();
-    }
-
-    @Override
     public Optional<Quote> save(Quote quote) {
         String query = "INSERT INTO Quotes (project_id, estimated_amount, issue_date, validity_date, accepted) VALUES (?, ?, ?, ?, ?) RETURNING quote_id";
 
@@ -65,6 +46,27 @@ public class QuoteRepositoryImpl implements QuoteRepository {
         }
         return Optional.empty();
     }
+
+    @Override
+    public Optional<Quote> findByProjectId(int project_id) {
+        String query = "SELECT * FROM Quotes WHERE project_id = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, project_id);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(mapResultSetToQuote(rs));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Log or handle the exception as needed
+        }
+        return Optional.empty();
+    }
+
+
 
     public Optional<Quote> update(Quote quote) {
         String query = "UPDATE Quotes SET project_id = ?, estimated_amount = ?, issue_date = ?, validity_date = ?, accepted = ? WHERE quote_id = ?";
@@ -96,6 +98,7 @@ public class QuoteRepositoryImpl implements QuoteRepository {
             e.printStackTrace();
         }
     }
+
     @Override
     public Quote mapResultSetToQuote(ResultSet rs) throws SQLException {
         int quoteId = rs.getInt("quote_id");

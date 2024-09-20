@@ -20,110 +20,6 @@ public class ComponentRepositoryImpl implements ComponentRepository {
         this.connection = DatabaseConnection.getConnection();
     }
 
-    public Optional<Component> findById(int id) {
-        String query = "SELECT \n" +
-                "    c.component_id, \n" +
-                "    c.project_id, \n" +
-                "    c.name, \n" +
-                "    c.unit_cost, \n" +
-                "    c.quantity, \n" +
-                "    c.component_type, \n" +
-                "    c.vat_rate,\n" +
-                "    m.transport_cost, \n" +
-                "    m.quality_coefficient, \n" +
-                "    l.hourly_rate, \n" +
-                "    l.hours_worked, \n" +
-                "    l.productivity_factor\n" +
-                "FROM \n" +
-                "    Components c\n" +
-                "LEFT JOIN \n" +
-                "    Materials m ON c.component_id = m.component_id\n" +
-                "LEFT JOIN \n" +
-                "    Labor l ON c.component_id = l.component_id\n" +
-                "WHERE c.component_id = ?";
-
-        try (PreparedStatement ps = connection.prepareStatement(query)) {
-            ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                Component component = mapResultSetToComponent(rs);
-                return Optional.of(component);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return Optional.empty();
-    }
-
-    @Override
-    public List<Component> findAll() {
-        String query = "SELECT \n" +
-                "    c.component_id, \n" +
-                "    c.project_id, \n" +
-                "    c.name, \n" +
-                "    c.unit_cost, \n" +
-                "    c.quantity, \n" +
-                "    c.component_type, \n" +
-                "    c.vat_rate,\n" +
-                "    m.transport_cost, \n" +
-                "    m.quality_coefficient, \n" +
-                "    l.hourly_rate, \n" +
-                "    l.hours_worked, \n" +
-                "    l.productivity_factor\n" +
-                "FROM \n" +
-                "    Components c\n" +
-                "LEFT JOIN \n" +
-                "    Materials m ON c.component_id = m.component_id\n" +
-                "LEFT JOIN \n" +
-                "    Labor l ON c.component_id = l.component_id";
-        List<Component> components = new ArrayList<>();
-        try (PreparedStatement ps = connection.prepareStatement(query);
-             ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                Component component = mapResultSetToComponent(rs);
-                components.add(component);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return components;
-    }
-
-    public List<Component> findByProjectId(int id) {
-        String query = "SELECT \n" +
-                "    c.component_id, \n" +
-                "    c.project_id, \n" +
-                "    c.name, \n" +
-                "    c.unit_cost, \n" +
-                "    c.quantity, \n" +
-                "    c.component_type, \n" +
-                "    c.vat_rate,\n" +
-                "    m.transport_cost, \n" +
-                "    m.quality_coefficient, \n" +
-                "    l.hourly_rate, \n" +
-                "    l.hours_worked, \n" +
-                "    l.productivity_factor\n" +
-                "FROM \n" +
-                "    Components c\n" +
-                "LEFT JOIN \n" +
-                "    Materials m ON c.component_id = m.component_id\n" +
-                "LEFT JOIN \n" +
-                "    Labor l ON c.component_id = l.component_id\n" +
-                "WHERE c.project_id = ?";
-
-        List<Component> components = new ArrayList<>();
-        try (PreparedStatement ps = connection.prepareStatement(query)) {
-            ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                Component component = mapResultSetToComponent(rs);
-                components.add(component);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return components;
-    }
     @Override
     public Optional<Component> save(Component component) {
 
@@ -176,6 +72,79 @@ public class ComponentRepositoryImpl implements ComponentRepository {
     }
 
     @Override
+    public Optional<Component> findById(int id) {
+        String query = "SELECT \n" +
+                "    c.component_id, \n" +
+                "    c.project_id, \n" +
+                "    c.name, \n" +
+                "    c.unit_cost, \n" +
+                "    c.quantity, \n" +
+                "    c.component_type, \n" +
+                "    c.vat_rate,\n" +
+                "    m.transport_cost, \n" +
+                "    m.quality_coefficient, \n" +
+                "    l.hourly_rate, \n" +
+                "    l.hours_worked, \n" +
+                "    l.productivity_factor\n" +
+                "FROM \n" +
+                "    Components c\n" +
+                "LEFT JOIN \n" +
+                "    Materials m ON c.component_id = m.component_id\n" +
+                "LEFT JOIN \n" +
+                "    Labor l ON c.component_id = l.component_id\n" +
+                "WHERE c.component_id = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                Component component = mapResultSetToComponent(rs);
+                return Optional.of(component);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public List<Component> findByProjectId(int id) {
+        String query = "SELECT \n" +
+                "    c.component_id, \n" +
+                "    c.project_id, \n" +
+                "    c.name, \n" +
+                "    c.unit_cost, \n" +
+                "    c.quantity, \n" +
+                "    c.component_type, \n" +
+                "    c.vat_rate,\n" +
+                "    m.transport_cost, \n" +
+                "    m.quality_coefficient, \n" +
+                "    l.hourly_rate, \n" +
+                "    l.hours_worked, \n" +
+                "    l.productivity_factor\n" +
+                "FROM \n" +
+                "    Components c\n" +
+                "LEFT JOIN \n" +
+                "    Materials m ON c.component_id = m.component_id\n" +
+                "LEFT JOIN \n" +
+                "    Labor l ON c.component_id = l.component_id\n" +
+                "WHERE c.project_id = ?";
+
+        List<Component> components = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Component component = mapResultSetToComponent(rs);
+                components.add(component);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return components;
+    }
+
+    @Override
     public Optional<Component> update(Component component) {
         String query = "UPDATE Components SET name = ?, unit_cost = ?, quantity = ?, component_type = ?, vat_rate = ?, project_id = ? WHERE component_id = ?";
 
@@ -216,8 +185,6 @@ public class ComponentRepositoryImpl implements ComponentRepository {
         return Optional.empty();
     }
 
-
-
     @Override
     public Boolean delete(int pid, String componentName, MaterialOrLabor materialOrLabor) {
         String query = "DELETE FROM Components WHERE project_id = ? AND name = ? AND component_type = ?";
@@ -232,7 +199,6 @@ public class ComponentRepositoryImpl implements ComponentRepository {
         }
         return false;
     }
-
 
     public Component mapResultSetToComponent(ResultSet rs) throws SQLException {
         int component_id = rs.getInt("component_id");

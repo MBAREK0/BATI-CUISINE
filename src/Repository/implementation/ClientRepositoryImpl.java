@@ -19,7 +19,6 @@ public class ClientRepositoryImpl implements ClientRepository {
         this.connection = DatabaseConnection.getConnection();
     }
 
-
     @Override
     public Optional<Client> save(Client client) {
         String query = "INSERT INTO Clients (name, address, phone, is_professional,discount_percentage) VALUES (?, ?, ?, ?,?)";

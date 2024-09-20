@@ -8,7 +8,7 @@ import Service.ProjectService;
 import java.util.List;
 import java.util.Scanner;
 
-public class ComponentRemote {
+public class ComponentView {
 
     private ProjectService projectService = new ProjectService();
     private Scanner scanner = new Scanner(System.in);
