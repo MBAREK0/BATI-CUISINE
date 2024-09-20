@@ -1,11 +1,10 @@
-package Remote;
+package View;
 
 import ConsoleUi.MainUi;
 import ConsoleUi.ProjectUi;
 import Entity.Client;
 import Entity.Project;
 import Entity.Quote;
-import Repository.implementation.ClientRepositoryImpl;
 import Repository.implementation.ProjectRepositoryImpl;
 import Service.ProjectService;
 
@@ -20,7 +19,7 @@ public class ProjectRemote {
     private MainUi mainUi = new MainUi();
     private ProjectRepositoryImpl projectRepository = new ProjectRepositoryImpl();
     private ProjectService projectService = new ProjectService();
-    private ComponentRemote componentRemote = new ComponentRemote();
+    private ComponentView componentView = new ComponentView();
 
     public void main() {
 
@@ -102,7 +101,7 @@ public class ProjectRemote {
         if(choice.equals("y")) {
             MaterialRemote materialRemote = new MaterialRemote();
             materialRemote.main(project.getProject_id());
-            LaborRemote laborRemote = new LaborRemote();
+            LaborView laborRemote = new LaborView();
             laborRemote.main(project.getProject_id());
 
             do {
@@ -268,7 +267,7 @@ public class ProjectRemote {
         } while (!choice.equals("y") && !choice.equals("n"));
 
         if (choice.equals("y")) {
-            componentRemote.viewComponent(project);
+            componentView.viewComponent(project);
         }
 
 
@@ -285,7 +284,7 @@ public class ProjectRemote {
         if (choice.equals("y")) {
             MaterialRemote materialRemote = new MaterialRemote();
             materialRemote.main(project.getProject_id());
-            LaborRemote laborRemote = new LaborRemote();
+            LaborView laborRemote = new LaborView();
             laborRemote.main(project.getProject_id());
         }
 
@@ -300,7 +299,7 @@ public class ProjectRemote {
         } while (!choice.equals("y") && !choice.equals("n")) ;
 
         if (choice.equals("y")) {
-            componentRemote.deleteComponent(project);
+            componentView.deleteComponent(project);
         }
 
         // =====Update=========================================================
@@ -314,7 +313,7 @@ public class ProjectRemote {
         } while (!choice.equals("y") && !choice.equals("n"));
 
         if (choice.equals("y")) {
-            componentRemote.updateComponent(project);
+            componentView.updateComponent(project);
         }
 
     }
@@ -361,7 +360,7 @@ public class ProjectRemote {
 
         System.out.println("=== Project components ==============================");
         System.out.println();
-        componentRemote.viewComponent(project.get());
+        componentView.viewComponent(project.get());
 
     }
 

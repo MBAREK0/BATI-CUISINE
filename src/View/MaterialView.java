@@ -1,8 +1,7 @@
-package Remote;
+package View;
 
 
 import Entity.Material;
-import Entity.Project;
 import Service.MaterialService;
 
 

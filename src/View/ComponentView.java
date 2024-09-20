@@ -1,4 +1,4 @@
-package Remote;
+package View;
 
 import Entity.Labor;
 import Entity.Material;
@@ -6,7 +6,6 @@ import Entity.Project;
 import Service.ProjectService;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Scanner;
 
 public class ComponentRemote {

@@ -1,6 +1,5 @@
-package Remote;
+package View;
 
-import ConsoleUi.ClientUi;
 import ConsoleUi.MainUi;
 
 import java.util.Scanner;
@@ -10,7 +9,7 @@ public class Remote {
     private Scanner scanner = new Scanner(System.in);
     private MainUi mainUi = new MainUi();
     private ProjectRemote projectRemote = new ProjectRemote();
-    private ClientRemote clientRemote = new ClientRemote();
+    private ClientView clientRemote = new ClientView();
     private QuoteRemote quoteRemote = new QuoteRemote();
 
     public void main() {

@@ -1,4 +1,4 @@
-package Remote;
+package View;
 
 import ConsoleUi.MainUi;
 import ConsoleUi.QuoteUi;

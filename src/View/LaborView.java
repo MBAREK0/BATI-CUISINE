@@ -1,4 +1,4 @@
-package Remote;
+package View;
 
 import Entity.Labor;
 import Service.LaborService;
