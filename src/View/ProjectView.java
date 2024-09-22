@@ -30,8 +30,14 @@ public class ProjectView {
             projectUi.Ui();
 
             mainUi.printPrompt("projects");
-            int choice = scanner.nextInt();
-            scanner.nextLine();
+            int choice ;
+            try {
+                choice = scanner.nextInt();
+            } catch (Exception e) {
+                System.err.println("\033[0;31mInvalid choice\033[0m");
+                scanner.nextLine();
+                continue;
+            }
 
             switch (choice) {
 
@@ -63,11 +69,11 @@ public class ProjectView {
         System.out.print("Enter the client name: ");
         String clientName = scanner.nextLine();
         Optional<Client> clientOptional = projectService.findClientByName(clientName);
-        int clientId ;
+        int clientId;
         if (clientOptional.isPresent()) {
             System.out.println("Client found");
             System.out.println(clientOptional.get());
-             clientId = clientOptional.get().getClient_id();
+            clientId = clientOptional.get().getClient_id();
         } else {
             System.err.println("Client not found");
             return;
@@ -98,7 +104,7 @@ public class ProjectView {
         } while (!choice.equals("y") && !choice.equals("n"));
 
 
-        if(choice.equals("y")) {
+        if (choice.equals("y")) {
             MaterialView materialRemote = new MaterialView();
             materialRemote.main(project.getProject_id());
             LaborView laborRemote = new LaborView();
@@ -113,10 +119,10 @@ public class ProjectView {
                 profitMargin = 0.0;
             }
 
-            Double T =  projectService.calculateCost(project.getProject_id(), profitMargin);
+            Double T = projectService.calculateCost(project.getProject_id(), profitMargin);
             System.out.println();
-            System.out.print("Total cost of the project: " );
-            System.out.println("\033[0;32m"+ String.format("%.2f", T) + " Dh" +"\033[0m");
+            System.out.print("Total cost of the project: ");
+            System.out.println("\033[0;32m" + String.format("%.2f", T) + " Dh" + "\033[0m");
             System.out.println();
 
 
@@ -130,7 +136,7 @@ public class ProjectView {
             choice = scanner.nextLine();
         } while (!choice.equals("y") && !choice.equals("n"));
 
-        if(choice.equals("y")){
+        if (choice.equals("y")) {
             QuoteView quotationRemote = new QuoteView();
             quotationRemote.createQuote(project.getProject_id());
         }
@@ -138,7 +144,7 @@ public class ProjectView {
 
     }
 
-    public void updateProject(){
+    public void updateProject() {
         System.out.print("Enter the project name: ");
         String projectName = scanner.nextLine();
         System.out.print("Enter the Client name: ");
@@ -156,7 +162,7 @@ public class ProjectView {
         do {
             System.out.print("Would you like to update the project information? (y/n): ");
             choice = scanner.nextLine();
-        } while (!choice.equals("y") && !choice.equals("n")) ;
+        } while (!choice.equals("y") && !choice.equals("n"));
 
         if (choice.equals("y")) {
             updateProjectInfo(project);
@@ -165,11 +171,11 @@ public class ProjectView {
         do {
             System.out.print("Would you like to mange component for this project? (y/n): ");
             choice = scanner.nextLine();
-        } while (!choice.equals("y") && !choice.equals("n")) ;
+        } while (!choice.equals("y") && !choice.equals("n"));
 
         if (choice.equals("y")) {
             updateProjectComponents(project);
-            Double T  =  projectService.calculateCost(project.getProject_id(), project.getProfit_margin());
+            Double T = projectService.calculateCost(project.getProject_id(), project.getProfit_margin());
             project.setTotal_cost(T);
             projectService.update(project);
 
@@ -182,11 +188,11 @@ public class ProjectView {
         }
 
 
-
         System.out.println("\033[0;32mProject updated successfully\033[0m");
 
     }
-    public void updateProjectInfo(Project project){
+
+    public void updateProjectInfo(Project project) {
 
         System.out.print("Would you like to update the project name? (y/n): ");
         String choice = scanner.nextLine();
@@ -198,7 +204,7 @@ public class ProjectView {
 
         if (choice.equals("y")) {
             System.out.print("Enter the new project name: ");
-             String projectName = scanner.nextLine();
+            String projectName = scanner.nextLine();
             project.setProject_name(projectName);
         }
 
@@ -250,7 +256,7 @@ public class ProjectView {
         System.out.println();
     }
 
-    public void updateProjectComponents(Project project){
+    public void updateProjectComponents(Project project) {
 
         String yellow = "\033[0;33m";
         String reset = "\033[0m";
@@ -261,7 +267,7 @@ public class ProjectView {
         System.out.println();
         String choice;
 
-        do{
+        do {
             System.out.print("would you like to view the components associated with the project? (y/n): ");
             choice = scanner.nextLine();
         } while (!choice.equals("y") && !choice.equals("n"));
@@ -273,13 +279,13 @@ public class ProjectView {
 
         // =====Add=========================================================
         System.out.println();
-        System.out.println(yellow+"==== Add Component ===================================="+reset);
+        System.out.println(yellow + "==== Add Component ====================================" + reset);
         System.out.println();
 
         do {
             System.out.print("Would you like to add a component to the project? (y/n): ");
             choice = scanner.nextLine();
-        } while (!choice.equals("y") && !choice.equals("n")) ;
+        } while (!choice.equals("y") && !choice.equals("n"));
 
         if (choice.equals("y")) {
             MaterialView materialRemote = new MaterialView();
@@ -290,13 +296,13 @@ public class ProjectView {
 
         // ====Delete==========================================================
         System.out.println();
-        System.out.println(yellow+"==== Delete Component ================================="+reset);
+        System.out.println(yellow + "==== Delete Component =================================" + reset);
         System.out.println();
 
         do {
             System.out.print("Would you like to delete a component from the project? (y/n): ");
             choice = scanner.nextLine();
-        } while (!choice.equals("y") && !choice.equals("n")) ;
+        } while (!choice.equals("y") && !choice.equals("n"));
 
         if (choice.equals("y")) {
             componentView.deleteComponent(project);
@@ -304,7 +310,7 @@ public class ProjectView {
 
         // =====Update=========================================================
         System.out.println();
-        System.out.println(yellow+"==== Update Component ================================="+reset);
+        System.out.println(yellow + "==== Update Component =================================" + reset);
         System.out.println();
 
         do {
@@ -318,7 +324,7 @@ public class ProjectView {
 
     }
 
-    public void deleteProject(){
+    public void deleteProject() {
         System.out.print("Enter the project name: ");
         String projectName = scanner.nextLine();
         System.out.print("Enter the Client name: ");
@@ -344,7 +350,7 @@ public class ProjectView {
         }
     }
 
-    public void ShowProject(){
+    public void ShowProject() {
         System.out.print("Enter the project name: ");
         String projectName = scanner.nextLine();
         System.out.print("Enter the Client name: ");
@@ -374,35 +380,24 @@ public class ProjectView {
         // Calculate the maximum widths for each column dynamically
         int projectNameWidth = Math.max("Project Name".length(), 15) * 2; // Arbitrary widths for headers
         int profitMarginWidth = Math.max("Profit Margin".length(), 15);
-        int totalCostWidth = Math.max("1681393.4279999998".length(), 15) ;
+        int totalCostWidth = Math.max("1681393.4279999998".length(), 15);
         int projectStatusWidth = Math.max("Project Status".length(), 15);
         int surfaceAreaWidth = Math.max("Surface Area".length(), 15);
-        int clientNameWidth = Math.max("Client Name".length(), 15) ; // New width for client name
+        int clientNameWidth = Math.max("Client Name".length(), 15); // New width for client name
 
         // Build the table header
         StringBuilder sb = new StringBuilder();
         sb.append(yellow); // Start with yellow color
 
         // Top border
-        sb.append("+").append("-".repeat(projectNameWidth + 2))
-                .append("+").append("-".repeat(profitMarginWidth + 2))
-                .append("+").append("-".repeat(totalCostWidth + 2))
-                .append("+").append("-".repeat(projectStatusWidth + 2))
-                .append("+").append("-".repeat(surfaceAreaWidth + 2))
-                .append("+").append("-".repeat(clientNameWidth + 2)) // New border
+        sb.append("+").append("-".repeat(projectNameWidth + 2)).append("+").append("-".repeat(profitMarginWidth + 2)).append("+").append("-".repeat(totalCostWidth + 2)).append("+").append("-".repeat(projectStatusWidth + 2)).append("+").append("-".repeat(surfaceAreaWidth + 2)).append("+").append("-".repeat(clientNameWidth + 2)) // New border
                 .append("+\n");
 
         // Header row
-        sb.append(String.format("| %-"+projectNameWidth+"s | %-"+profitMarginWidth+"s | %-"+totalCostWidth+"s | %-"+projectStatusWidth+"s | %-"+surfaceAreaWidth+"s | %-"+clientNameWidth+"s |\n",
-                "Project Name", "Profit Margin %", "Total Cost (Dh)", "Project Status", "Surface (m^2)", "Client Name"));
+        sb.append(String.format("| %-" + projectNameWidth + "s | %-" + profitMarginWidth + "s | %-" + totalCostWidth + "s | %-" + projectStatusWidth + "s | %-" + surfaceAreaWidth + "s | %-" + clientNameWidth + "s |\n", "Project Name", "Profit Margin %", "Total Cost (Dh)", "Project Status", "Surface (m^2)", "Client Name"));
 
         // Middle border
-        sb.append("+").append("-".repeat(projectNameWidth + 2))
-                .append("+").append("-".repeat(profitMarginWidth + 2))
-                .append("+").append("-".repeat(totalCostWidth + 2))
-                .append("+").append("-".repeat(projectStatusWidth + 2))
-                .append("+").append("-".repeat(surfaceAreaWidth + 2))
-                .append("+").append("-".repeat(clientNameWidth + 2)) // New border
+        sb.append("+").append("-".repeat(projectNameWidth + 2)).append("+").append("-".repeat(profitMarginWidth + 2)).append("+").append("-".repeat(totalCostWidth + 2)).append("+").append("-".repeat(projectStatusWidth + 2)).append("+").append("-".repeat(surfaceAreaWidth + 2)).append("+").append("-".repeat(clientNameWidth + 2)) // New border
                 .append("+\n");
 
         sb.append(reset); // Reset the color
@@ -418,23 +413,17 @@ public class ProjectView {
         // Calculate the maximum widths for each column dynamically
         int projectNameWidth = Math.max("Project Name".length(), 15) * 2;
         int profitMarginWidth = Math.max("Profit Margin".length(), 15);
-        int totalCostWidth = Math.max("1681393.4279999998".length(), 15) ;
+        int totalCostWidth = Math.max("1681393.4279999998".length(), 15);
         int projectStatusWidth = Math.max("Project Status".length(), 15);
         int surfaceAreaWidth = Math.max("Surface Area".length(), 15);
-        int clientNameWidth = Math.max("Client Name".length(), 15) ; // New width for client name
+        int clientNameWidth = Math.max("Client Name".length(), 15); // New width for client name
 
         // Build the table row for the project
         StringBuilder sb = new StringBuilder();
         sb.append(yellow); // Start with yellow color
 
         // Data row
-        sb.append(String.format("| %-"+projectNameWidth+"s | %-"+profitMarginWidth+"s | %-"+totalCostWidth+"s | %-"+projectStatusWidth+"s | %-"+surfaceAreaWidth+"s | %-"+clientNameWidth+"s |\n",
-                projectName,
-                profitMargin,
-                totalCost,
-                projectStatus,
-                surfaceArea,
-                clientName)); // Including client name
+        sb.append(String.format("| %-" + projectNameWidth + "s | %-" + profitMarginWidth + "s | %-" + totalCostWidth + "s | %-" + projectStatusWidth + "s | %-" + surfaceAreaWidth + "s | %-" + clientNameWidth + "s |\n", projectName, profitMargin, totalCost, projectStatus, surfaceArea, clientName)); // Including client name
 
         sb.append(reset);
         return sb.toString();
@@ -449,20 +438,15 @@ public class ProjectView {
         // Calculate the maximum widths for each column dynamically
         int projectNameWidth = Math.max("Project Name".length(), 15) * 2;
         int profitMarginWidth = Math.max("Profit Margin".length(), 15);
-        int totalCostWidth = Math.max("1681393.4279999998".length(), 15) ;
+        int totalCostWidth = Math.max("1681393.4279999998".length(), 15);
         int projectStatusWidth = Math.max("Project Status".length(), 15);
         int surfaceAreaWidth = Math.max("Surface Area".length(), 15);
-        int clientNameWidth = Math.max("Client Name".length(), 15) ; // New width for client name
+        int clientNameWidth = Math.max("Client Name".length(), 15); // New width for client name
 
         // Bottom border
         StringBuilder sb = new StringBuilder();
         sb.append(yellow); // Start with yellow color
-        sb.append("+").append("-".repeat(projectNameWidth + 2))
-                .append("+").append("-".repeat(profitMarginWidth + 2))
-                .append("+").append("-".repeat(totalCostWidth + 2))
-                .append("+").append("-".repeat(projectStatusWidth + 2))
-                .append("+").append("-".repeat(surfaceAreaWidth + 2))
-                .append("+").append("-".repeat(clientNameWidth + 2)) // New border
+        sb.append("+").append("-".repeat(projectNameWidth + 2)).append("+").append("-".repeat(profitMarginWidth + 2)).append("+").append("-".repeat(totalCostWidth + 2)).append("+").append("-".repeat(projectStatusWidth + 2)).append("+").append("-".repeat(surfaceAreaWidth + 2)).append("+").append("-".repeat(clientNameWidth + 2)) // New border
                 .append("+\n");
 
         sb.append(reset); // Reset the color

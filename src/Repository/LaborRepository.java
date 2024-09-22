@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface LaborRepository {
-    Optional<Labor> save(Labor labor) throws SQLException;
+    Optional<Labor> save(Labor labor);
     List<Labor> findLaborsByProjectId(int id);
     Optional<Labor> updateLabor(Labor labor);
     public Boolean deleteLabor(int pid, String laborName);

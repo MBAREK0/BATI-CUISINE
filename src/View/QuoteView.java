@@ -23,16 +23,15 @@ public class QuoteView {
     private QuoteService quoteService = new QuoteService();
 
     // Define colors
-    private static final String WHITE_TEXT_ON_YELLOW_BG = "\033[97;43m";
+    private static final String BLACK_BG = "\033[40m";
     private static final String RESET = "\033[0m";
 
     // Define table borders and separators
     private static final String BORDER = "+";
     private static final String SEPARATOR = "-";
     private static final int TABLE_WIDTH = 120;
-    private static final String BRIGHT_MAGENTA_BG = "\033[105m";
-    private static final String GREEN_BG = "\033[42m";
-    private static final String BLACK_BG = "\033[40m";
+    private static final String BRIGHT_MAGENTA_BG = "\033[34m";
+    private static final String GREEN_COLOR = "\033[32m";
     private final QuoteUi quoteUi = new QuoteUi();
     private final MainUi mainUi = new MainUi();
 
@@ -46,8 +45,14 @@ public class QuoteView {
             quoteUi.Ui();
 
             mainUi.printPrompt("quote");
-            int choice = scanner.nextInt();
-            scanner.nextLine();
+            int choice ;
+            try {
+                choice = scanner.nextInt();
+            } catch (Exception e) {
+                System.err.println("\033[0;31mInvalid choice\033[0m");
+                scanner.nextLine();
+                continue;
+            }
 
             switch (choice) {
                 case 1:
@@ -379,39 +384,46 @@ public class QuoteView {
         printTableHeader();
 
         // Print project information
-        printTableRow("    ",BLACK_BG);
         printTableRow("  Quote for project: " + project.getProject_name(),BLACK_BG);
-        printTableRow("    ",BLACK_BG);
+        printTableFooter();
 
-
+        printTableRow(" ",BRIGHT_MAGENTA_BG);
         printTableRow("  Project information",BRIGHT_MAGENTA_BG);
-        printTableRow("  Client: " + client.getName(),WHITE_TEXT_ON_YELLOW_BG);
-        printTableRow("  Surface area: " + project.getSurface_area() + " m^2",WHITE_TEXT_ON_YELLOW_BG);
-        printTableRow("  Profit margin: " + project.getProfit_margin() + " %",WHITE_TEXT_ON_YELLOW_BG);
-        printTableRow("  Project status: " + project.getProject_status(),WHITE_TEXT_ON_YELLOW_BG);
+        printTableRow("  -------------------",BRIGHT_MAGENTA_BG);
+        printTableRow("  Client: " + client.getName(),BLACK_BG);
+        printTableRow("  Surface area: " + project.getSurface_area() + " m^2",BLACK_BG);
+        printTableRow("  Profit margin: " + project.getProfit_margin() + " %",BLACK_BG);
+        printTableRow("  Project status: " + project.getProject_status(),BLACK_BG);
 
         // Print materials
-
+        printTableRow(" ",BRIGHT_MAGENTA_BG);
         printTableRow("  Project materials",BRIGHT_MAGENTA_BG);
+        printTableRow("  -----------------",BRIGHT_MAGENTA_BG);
+
         if (materials.isEmpty())
-            printTableRow("  No materials added to the project",WHITE_TEXT_ON_YELLOW_BG);
+            printTableRow("  No materials added to the project",BLACK_BG);
         else
-            materials.forEach(material -> printTableRow(material.toString(),WHITE_TEXT_ON_YELLOW_BG));
+            materials.forEach(material -> printTableRow(material.toString(),BLACK_BG));
 
 
         // Print labors
+        printTableRow(" ",BRIGHT_MAGENTA_BG);
         printTableRow("  Project labors",BRIGHT_MAGENTA_BG);
+        printTableRow("  --------------",BRIGHT_MAGENTA_BG);
         if (labors.isEmpty())
-            printTableRow("  No labors added to the project",WHITE_TEXT_ON_YELLOW_BG);
+            printTableRow("  No labors added to the project",BLACK_BG);
         else
-        labors.forEach(labor -> printTableRow(labor.toString(),WHITE_TEXT_ON_YELLOW_BG));
+        labors.forEach(labor -> printTableRow(labor.toString(),BLACK_BG));
 
         // Print quote information
+        printTableRow(" ",BRIGHT_MAGENTA_BG);
         printTableRow("  Quote information",BRIGHT_MAGENTA_BG);
-        printTableRow("  Issue date: " + quote.getIssueDate(),WHITE_TEXT_ON_YELLOW_BG);
-        printTableRow("  Validity date: " + quote.getValidityDate(),WHITE_TEXT_ON_YELLOW_BG);
-        printTableRow("  Accepted: " + quote.isAccepted(),WHITE_TEXT_ON_YELLOW_BG);
-        printTableRow("  Estimated amount: " +  String.format("%.2f", quote.getEstimatedAmount() ) + " Dh",GREEN_BG);
+        printTableRow("  -----------------",BRIGHT_MAGENTA_BG);
+        printTableRow("  Issue date: " + quote.getIssueDate(),BLACK_BG);
+        printTableRow("  Validity date: " + quote.getValidityDate(),BLACK_BG);
+        String isAccepted = quote.isAccepted() ? "Yes" : "No";
+        printTableRow("  Accepted: " + ( isAccepted ),BLACK_BG);
+        printTableRow("  Estimated amount: " +  String.format("%.2f", quote.getEstimatedAmount() ) + " Dh",GREEN_COLOR);
 
 
 
@@ -420,15 +432,15 @@ public class QuoteView {
     }
 
     private void printTableHeader() {
-        System.out.println(WHITE_TEXT_ON_YELLOW_BG + BORDER + SEPARATOR.repeat(TABLE_WIDTH - 2) + BORDER + RESET);
+        System.out.println(BLACK_BG + BORDER + SEPARATOR.repeat(TABLE_WIDTH - 2) + BORDER + RESET);
     }
 
     private void printTableFooter() {
-        System.out.println(WHITE_TEXT_ON_YELLOW_BG + BORDER + SEPARATOR.repeat(TABLE_WIDTH - 2) + BORDER + RESET);
+        System.out.println(BLACK_BG + BORDER + SEPARATOR.repeat(TABLE_WIDTH - 2) + BORDER + RESET);
     }
 
     private void printTableRow(String text,String COLOR) {
-        String formattedText = String.format("%-" + (TABLE_WIDTH - 4) + "s", text);
+        String formattedText = String.format("%-" + (TABLE_WIDTH - 2) + "s", text);
         System.out.println(COLOR + BORDER + formattedText + BORDER + RESET);
     }
 

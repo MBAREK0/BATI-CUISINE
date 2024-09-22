@@ -22,8 +22,16 @@ public class MainView {
             mainUi.Ui();
 
             mainUi.printPrompt("");
-            int choice = scanner.nextInt();
-            scanner.nextLine();
+
+            int choice ;
+            try {
+                choice = scanner.nextInt();
+            } catch (Exception e) {
+                System.err.println("\033[0;31mInvalid choice\033[0m");
+                scanner.nextLine();
+                continue;
+            }
+
 
             switch (choice) {
                 case 1:
